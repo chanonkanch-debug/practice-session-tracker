@@ -1,0 +1,20 @@
+{
+  "name": "practice-session-tracker",
+  "version": "1.0.0",
+  "description": "Application to track music practicing session.",
+  "homepage": "https://github.com/chanonkanch-debug/practice-session-tracker#readme",
+  "bugs": {
+    "url": "https://github.com/chanonkanch-debug/practice-session-tracker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chanonkanch-debug/practice-session-tracker.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
