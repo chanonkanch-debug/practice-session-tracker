@@ -38,3 +38,14 @@ A practice tracking API that helps musicians:
 - 
 
 ## API Endpoints (Planned)
+
+
+# INFO FOR MYSELF
+STEP 1: Environmental Setup
+- Node.js
+- PostgreSQL
+- Postman (Focusing on backend developement)
+- Git
+
+STEP 2: Project Initialization
+- 
