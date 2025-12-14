@@ -35,10 +35,15 @@ A practice tracking API that helps musicians:
 - Node.js + Express
 - PostgreSQL
 - JWT Authentication
-- 
 
 ## API Endpoints (Planned)
 
+# Tools
+https://chanonkanch.atlassian.net/jira/software/projects/SCRUM/boards/1 - Sprint Tracker
+https://docs.google.com/document/d/1YKFNZU7Tqn61gFlygp8R2GU2ws6wPrn2vwslOwfF3H4/edit?tab=t.0 - Sprint Guide
+
+https://supabase.com/dashboard/project/vaqxumzdsbexlhmuuwdi/database/schemas - Database
+https://github.com/chanonkanch-debug/practice-session-tracker - Version Control
 
 # INFO FOR MYSELF
 STEP 1: Environmental Setup
