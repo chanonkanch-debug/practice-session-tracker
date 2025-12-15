@@ -1,21 +1,16 @@
 const express = require('express');
 const pool = require('./src/config/database'); // import database connections
-
 require('dotenv').config();
 
-// creates the app
+// creates express application
 const app = express();
 
+// middleware
 app.use(express.json()); // parse incoming json data
 
+// routes
 app.get('/', (req, res) => {
     res.json({ message: 'Practice Session Tracker API is running' });
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Sever is running on port ${PORT}`);
 });
 
 app.get('/api/health', (req, res) => {
@@ -26,7 +21,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Database test endpoint
 app.get('/api/test-db', async (req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
@@ -43,4 +37,13 @@ app.get('/api/test-db', async (req, res) => {
             error: error.message
         })
     }
+});
+
+// get port from .env variable, default is 3000
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Sever is running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+    console.log(`DB test: http://localhost:${PORT}/api/test-db`);
 });
