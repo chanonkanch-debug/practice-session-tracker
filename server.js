@@ -44,7 +44,6 @@ app.get('/api/test-db', async (req, res) => {
 // Auth routes
 app.use('/api/auth', authRoutes);
     
-
 // get port from .env variable, default is 3000
 const PORT = process.env.PORT || 3000;
 
