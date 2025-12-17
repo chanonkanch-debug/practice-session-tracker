@@ -3,6 +3,7 @@ const pool = require('./src/config/database'); // import database connections
 require('dotenv').config();
 
 const authRoutes = require('./src/routes/authRoutes'); // import auth routes
+const sessionRoutes = require('./src/routes/sessionRoutes'); // import session routes
 
 // creates express application
 const app = express();
@@ -43,6 +44,9 @@ app.get('/api/test-db', async (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Session routes
+app.use('/api/sessions', sessionRoutes);
     
 // get port from .env variable, default is 3000
 const PORT = process.env.PORT || 3000;
