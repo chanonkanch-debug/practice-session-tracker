@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/Users');
 
 // Register new user
@@ -75,5 +76,65 @@ exports.register = async (req, res) => {
             success: false,
             error: 'Server error during registration'
         })
+    }
+}
+
+// User Login
+exports.login = async (req, res) => {
+    try {
+        //extract data from request body
+        const { email, password } = req.body;
+
+        //validate inputs
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email and password are required'
+            });
+        }
+
+        //find user by email
+        const user = await User.findByEmail(email);
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid email of password (TESTING: Cannot find user email)'
+            });
+        }
+
+        //verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid email or password (TESTING: Password verification failed)'
+            });
+        }
+
+        //generate JWT token
+        const token = jwt.sign(
+            { userId: user.id, email: user.email }, // payload
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' } // options
+        )
+
+        //return success response with token
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            token: token,
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username
+            }
+        });
+        
+    } catch (error) {
+        console.error('Login error: ', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error during login'
+        });
     }
 }
