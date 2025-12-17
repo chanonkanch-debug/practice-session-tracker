@@ -138,3 +138,35 @@ exports.login = async (req, res) => {
         });
     }
 }
+
+// get current user (protected route)
+exports.getCurrentUser = async (req, res) => {
+    try {
+        //req.userId is set by authMiddleware (by authenticating jwt token)
+        //know exactly which user is making the request (can return their specific data)
+        const user = await User.findById(req.userId); 
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                createdAt: user.created_at
+            }
+        });
+    } catch (error) {
+        console.error('Get current user error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error'
+        });
+    }
+}
