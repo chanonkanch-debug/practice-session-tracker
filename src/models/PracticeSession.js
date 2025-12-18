@@ -79,6 +79,48 @@ class PracticeSession {
         }
     }
 
+    // UPDATE practice sessions
+    static async update(sessionId, sessionData) {
+        const { practice_date, total_duration, instrument, session_notes } = sessionData;
+
+        const query = `
+            UPDATE practice_sessions
+            SET 
+                practice_date = $1,
+                total_duration = $2,
+                instrument = $3,
+                session_notes = $4,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $5
+            RETURNING id, user_id, practice_date, total_duration, instrument, session_notes, created_at, updated_at
+            `;
+
+        try {
+            const result = await pool.query(query, [
+                practice_date,
+                total_duration,
+                instrument,
+                session_notes,
+                sessionId
+            ]);
+            return result.rows[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // DELETE practice sessions
+    static async delete(sessionId) {
+        const query = 'DELETE FROM practice_sessions WHERE id = $1 RETURNING id';
+
+        try {
+            const result = await pool.query(query, [sessionId]);
+            return result.rows[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }
 
 module.exports = PracticeSession;

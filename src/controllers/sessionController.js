@@ -117,7 +117,7 @@ exports.getSessionById = async (req, res) => {
         if (session.user_id !== req.userId) {
             return res.status(403).json({ // forbidden
                 success: false,
-                error: 'Not authorized to access this session'
+                error: 'Not authorized to access this session ',
             }); 
         }
 
@@ -133,6 +133,151 @@ exports.getSessionById = async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Server error while fetching session'
+        });
+    }
+}
+
+//update controller
+exports.updateSession = async (req, res) => {
+    try {
+        //get session id
+        const sessionId = req.params.id;
+        //validate
+        if (isNaN(sessionId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid sessionID'
+            });
+        }
+
+        //check if session exist
+        const existingSession = await PracticeSession.findById(sessionId);
+
+        if (!existingSession) {
+            return res.status(404).json({
+                success: false,
+                error: 'Session not found'
+            });
+        }
+
+        //verify ownership (AUTHORIZATION)
+        if (existingSession.user_id !== req.userId) {
+            return res.status(403).json({
+                success: false,
+                error: 'Not authorized to update this session'
+            });
+        }
+
+        //extract update data from request body
+        const { practice_date, total_duration, instrument, session_notes } = req.body;
+
+        //use existing values if fields not provided (partial update)
+        const updatedData = {
+            practice_date: practice_date || existingSession.practice_date,
+            total_duration: total_duration !== undefined ? total_duration : existingSession.total_duration,
+            instrument: instrument !== undefined ? instrument : existingSession.instrument,
+            session_notes: session_notes !== undefined ? session_notes : existingSession.session_notes
+        }
+
+        // validate duration
+        if (updatedData.total_duration <= 0 || isNaN(updatedData.total_duration)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Duration must be positive number'
+            });
+        }
+
+        // Validate date format
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const dateToValidate = typeof updatedData.practice_date === 'string' 
+            ? updatedData.practice_date 
+            : updatedData.practice_date.toISOString().split('T')[0];
+        
+        if (!dateRegex.test(dateToValidate)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid date format. Use YYYY-MM-DD'
+            });
+        }
+
+        // Validate instrument
+        const allowedInstruments = ['piano', 'guitar', 'drums', 'violin', 'bass', 'other'];
+            if (updatedData.instrument && !allowedInstruments.includes(updatedData.instrument.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                error: `Instrument must be one of: ${allowedInstruments.join(', ')}`
+            });
+        }
+
+        // Normalize instrument
+        if (updatedData.instrument) {
+            updatedData.instrument = updatedData.instrument.toLowerCase();
+        }
+
+        // Update session in database
+        const updatedSession = await PracticeSession.update(sessionId, updatedData);
+
+        // Return success response
+        res.status(200).json({
+            success: true,
+            message: 'Session updated successfully',
+            session: updatedSession
+        });
+
+
+    } catch (error) {
+        console.error('Update session error:', error);
+        res.status(500).json({
+            success:  false,
+            error: 'Server error while updating session'
+        });
+    }
+}
+
+//delete controller
+exports.deleteSession = async (req, res) => {
+    try {
+        //get sessionid
+        const sessionId = req.params.id;
+        //validate
+        if (isNaN(sessionId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid sessionID'
+            });
+        }
+
+        //check if session exist
+        const existingSession = await PracticeSession.findById(sessionId);
+
+        if (!existingSession) {
+            return res.status(404).json({
+                success: false,
+                error: 'Session not found'
+            });
+        }
+
+        // Verify ownership (AUTHORIZATION)
+        if (existingSession.user_id !== req.userId) {
+            return res.status(403).json({
+                success: false,
+                error: 'Not authorized to delete this session'
+            });
+        }
+
+        //delete session from the db
+        await PracticeSession.delete(sessionId);
+
+        res.status(200).json({
+            success: true,
+            message: 'Session deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete session error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Server error while deleting session'
         });
     }
 }

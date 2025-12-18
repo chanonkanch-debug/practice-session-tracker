@@ -11,10 +11,16 @@ router.use(authMiddleware.authenticate)
 // POST /api/sessions
 router.post('/', sessionController.createSession);
 
-// GET
+// GET /api/sessions
 router.get('/',  sessionController.getAllsessions);
 
-// GET /api/sessions/
+// GET /api/sessions/:id
 router.get('/:id', sessionController.getSessionById);
+
+// PUT /api/sessions/:id 
+router.put('/:id', sessionController.updateSession);
+
+// DELETE /api/sessions/:id
+router.delete('/:id', sessionController.deleteSession);
 
 module.exports = router;
