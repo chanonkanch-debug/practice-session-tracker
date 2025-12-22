@@ -103,7 +103,7 @@ exports.getSessionById = async (req, res) => {
         }
 
         //find session in db
-        const session = await PracticeSession.findById(sessionId);
+        const session = await PracticeSession.findByIdWithItems(sessionId);
 
         //check if session exists
         if (!session) {

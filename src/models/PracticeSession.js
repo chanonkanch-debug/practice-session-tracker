@@ -121,6 +121,44 @@ class PracticeSession {
         }
     }
 
+    // Get session with its items
+    static async findByIdWithItems(sessionId) {
+        // get the session
+        const sessionQuery = `
+            SELECT 
+                id, user_id, practice_date, total_duration, 
+                instrument, session_notes, created_at, updated_at
+            FROM practice_sessions
+            WHERE id = $1
+            `;
+        
+        // then get its items
+        const itemsQuery = `
+            SELECT 
+                id, session_id, item_type, item_name, time_spent_minutes, 
+                tempo_bpm, difficulty_level, notes, created_at
+            FROM session_items
+            WHERE session_id = $1
+            ORDER BY created_at ASC
+            `;
+
+        try {
+            const sessionResult = await pool.query(sessionQuery, [sessionId]);
+            const session = sessionResult.rows[0];
+
+            if (!session) {
+                return null;
+            }
+
+            const itemsResult = await pool.query(itemsQuery, [sessionId]);
+            session.items = itemsResult.rows;
+            
+            return session;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }
 
 module.exports = PracticeSession;
