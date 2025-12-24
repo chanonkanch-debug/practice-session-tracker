@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./src/config/database'); // import database connections
+const cors = require('cors'); // CORS
 require('dotenv').config();
 
 const authRoutes = require('./src/routes/authRoutes'); // import auth routes
@@ -10,6 +11,7 @@ const statsRoutes = require('./src/routes/statsRoutes'); // import stats routes
 const app = express();
 
 // middleware
+app.use(cors()); // allow all origin
 app.use(express.json()); // parse incoming json data
 
 // routes
