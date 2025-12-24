@@ -8,7 +8,7 @@ export default function HomeScreen({ navigation }) {
 
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
-                    <Text style={styles.welcomeText}> Welcome Back!👋 </Text>
+                    <Text style={styles.welcomeText}> Welcome Back! 👋 </Text>
                     <Text style={styles.date}> {new Date().toLocaleDateString('en-US', {
                         weekday: 'long',
                         year: 'numeric',
