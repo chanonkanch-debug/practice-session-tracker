@@ -1,69 +1,40 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../../context/AuthContext'; // for logout
 
 export default function ProfileScreen() {
-  
-  const [testValue, setTestValue] = useState('');
+  const { user, logout } = useContext(AuthContext);
 
-  const saveData = async () => {
-    try {
-      await AsyncStorage.setItem('test-key', 'Hello AsyncStorage!');
-      alert('Data saved!');
-    } catch (error) {
-      alert('Error saving: ' + error.message);
-    }
-  };
-
-  //test loading data
-  const loadData = async () => {
-    try {
-      const value = await AsyncStorage.getItem('test-key');
-      if (value !== null) {
-        setTestValue(value);
-        alert('Data loaded: ' + value);
-      } else {
-        alert('No data found');
-      }
-    } catch (error) {
-      alert('Error loading: ' + error.message);
-    }
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: logout 
+        }
+      ]
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* Header with Avatar */}
+      {/* Header with user info */}
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>JD</Text>
+          <Text style={styles.avatarText}>
+            {user?.username?.charAt(0).toUpperCase() || 'U'}
+          </Text>
         </View>
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.email}>john.doe@example.com</Text>
+        <Text style={styles.name}>{user?.username || 'User'}</Text>
+        <Text style={styles.email}>{user?.email || 'user@example.com'}</Text>
       </View>
 
-      
-
       <ScrollView style={styles.scrollView}>
-
-        {/* TEST BUTTONS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AsyncStorage Test</Text>
-          
-          <TouchableOpacity style={styles.option} onPress={saveData}>
-            <Text style={styles.optionText}>Save Test Data</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.option} onPress={loadData}>
-            <Text style={styles.optionText}>Load Test Data</Text>
-          </TouchableOpacity>
-
-          {testValue !== '' && (
-            <View style={styles.option}>
-              <Text style={styles.optionText}>Loaded: {testValue}</Text>
-            </View>
-          )}
-        </View>
-
         {/* Settings Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
@@ -99,7 +70,7 @@ export default function ProfileScreen() {
           
           <TouchableOpacity 
             style={styles.option}
-            onPress={() => alert('Help & Support coming soon!')}
+            onPress={() => alert('Help coming soon!')}
           >
             <Text style={styles.optionText}>Help & Support</Text>
             <Text style={styles.optionArrow}>›</Text>
@@ -117,7 +88,7 @@ export default function ProfileScreen() {
         {/* Logout Button */}
         <TouchableOpacity 
           style={styles.logoutButton}
-          onPress={() => alert('Logout coming soon!')}
+          onPress={handleLogout}
         >
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
