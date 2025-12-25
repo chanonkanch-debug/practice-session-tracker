@@ -84,7 +84,7 @@ export const authApi = {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
-                    'Content-type': 'application/json'
+                    'Content-Type': 'application/json'
                 }
             });
 

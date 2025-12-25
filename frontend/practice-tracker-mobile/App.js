@@ -9,7 +9,9 @@ import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import RegisterScreen from './src/screens/auth/RegisterScreen';
 import HomeScreen from './src/screens/home/HomeScreen';
-import SessionsScreen from './src/screens/sessions/SessionScreens';
+import SessionsScreen from './src/screens/sessions/SessionsScreen';
+import SessionDetailScreen from './src/screens/sessions/SessionDetailScreen';
+import AddEditSessionScreen from './src/screens/sessions/AddSessionScreen';
 import StatsScreen from './src/screens/stats/StatsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 
@@ -22,6 +24,49 @@ function AuthStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// Sessions Stack (List -> Detail -> Edit/Add)
+function SessionsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="SessionsList" 
+        component={SessionsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="SessionDetail" 
+        component={SessionDetailScreen}
+        options={{ 
+          title: 'Session Details',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen 
+        name="AddSession" 
+        component={AddEditSessionScreen}
+        options={{ 
+          title: 'Add Session',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen 
+        name="EditSession" 
+        component={AddEditSessionScreen}
+        options={{ 
+          title: 'Edit Session',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -52,10 +97,11 @@ function MainTabs() {
       />
       
       <Tab.Screen 
-        name="Sessions" 
-        component={SessionsScreen}
+        name="SessionsTab" 
+        component={SessionsStack}
         options={{
           headerShown: false,
+          tabBarLabel: 'Sessions',
           tabBarIcon: ({ color }) => (
             <Text style={{ fontSize: 24 }}>📝</Text>
           ),
