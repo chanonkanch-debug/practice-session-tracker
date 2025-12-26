@@ -3,13 +3,25 @@ const pool = require('../config/database');
 class SessionItem {
     // Create a new session item
     static async create(sessionId, itemData) {
-        const { item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes } = itemData;
+        const { 
+            item_type, 
+            item_name, 
+            tempo_bpm, 
+            time_spent_minutes, 
+            difficulty_level, 
+            notes,
+            lap_number,          // NEW
+            started_at,      // NEW
+            ended_at         // NEW
+        } = itemData;
 
         const query = `
             INSERT INTO session_items 
-                (session_id, item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes, created_at
+                (session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
+                 difficulty_level, notes, lap_number, lap_started_at, lap_ended_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
+                      difficulty_level, notes, lap_number, started_at, ended_at, created_at
             `;
 
         try {
@@ -20,7 +32,10 @@ class SessionItem {
                 tempo_bpm,
                 time_spent_minutes,
                 difficulty_level,
-                notes
+                notes,
+                lap_number || null,         // NEW - optional
+                started_at || null,     // NEW - optional
+                ended_at || null        // NEW - optional
             ]);
             return result.rows[0];
         } catch (error) {
@@ -33,10 +48,11 @@ class SessionItem {
         const query = `
             SELECT 
                 id, session_id, item_type, item_name, 
-                tempo_bpm, time_spent_minutes, difficulty_level, notes, created_at
+                tempo_bpm, time_spent_minutes, difficulty_level, notes,
+                lap_number, started_at, ended_at, created_at
             FROM session_items
             WHERE session_id = $1
-            ORDER BY created_at ASC
+            ORDER BY lap_number ASC, created_at ASC
             `;
 
         try {
@@ -52,7 +68,8 @@ class SessionItem {
         const query = `
             SELECT 
                 id, session_id, item_type, item_name,
-                tempo_bpm, time_spent_minutes, difficulty_level, notes, created_at
+                tempo_bpm, time_spent_minutes, difficulty_level, notes,
+                lap_number, started_at, ended_at, created_at
             FROM session_items
             WHERE id = $1
             `;
@@ -67,19 +84,33 @@ class SessionItem {
 
     // Update a session item
     static async update(itemId, itemData) {
-        const { item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes } = itemData;
+        const { 
+            item_type, 
+            item_name, 
+            tempo_bpm, 
+            time_spent_minutes, 
+            difficulty_level, 
+            notes,
+            lap_number,          // NEW
+            started_at,      // NEW
+            ended_at         // NEW
+        } = itemData;
         
         const query = `
             UPDATE session_items
             SET 
-                item_type = $1,
-                item_name = $2,
-                tempo_bpm = $3,
-                time_spent_minutes = $4,
-                difficulty_level = $5,
-                notes = $6
-            WHERE id = $7
-            RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes, created_at
+                item_type = COALESCE($1, item_type),
+                item_name = COALESCE($2, item_name),
+                tempo_bpm = COALESCE($3, tempo_bpm),
+                time_spent_minutes = COALESCE($4, time_spent_minutes),
+                difficulty_level = COALESCE($5, difficulty_level),
+                notes = COALESCE($6, notes),
+                lap_number = COALESCE($7, lap_number),
+                lap_started_at = COALESCE($8, lap_started_at),
+                lap_ended_at = COALESCE($9, lap_ended_at)
+            WHERE id = $10
+            RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
+                      difficulty_level, notes, lap_number, started_at, ended_at, created_at
             `;
         
         try {
@@ -90,6 +121,9 @@ class SessionItem {
                 time_spent_minutes,
                 difficulty_level,
                 notes,
+                lap_number,         // NEW
+                started_at,     // NEW
+                ended_at,       // NEW
                 itemId
             ]);
             return result.rows[0];
@@ -105,6 +139,42 @@ class SessionItem {
         try {
             const result = await pool.query(query, [itemId]);
             return result.rows[0];
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // NEW: Get items for a session ordered by lap
+    static async findBySessionIdOrderedByLap(sessionId) {
+        const query = `
+            SELECT 
+                id, session_id, item_type, item_name, 
+                tempo_bpm, time_spent_minutes, difficulty_level, notes,
+                lap_number, started_at, ended_at, created_at
+            FROM session_items
+            WHERE session_id = $1
+            ORDER BY lap_number ASC NULLS LAST, created_at ASC
+            `;
+
+        try {
+            const result = await pool.query(query, [sessionId]);
+            return result.rows;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // NEW: Get next lap number for a session
+    static async getNextLapNumber(sessionId) {
+        const query = `
+            SELECT COALESCE(MAX(lap_number), 0) + 1 as next_lap_number
+            FROM session_items
+            WHERE session_id = $1
+        `;
+
+        try {
+            const result = await pool.query(query, [sessionId]);
+            return result.rows[0].next_lap_number;
         } catch (error) {
             throw error;
         }

@@ -22,11 +22,14 @@ exports.getTotalTime = async (req, res) => {
             case 'week':
                 const weekAgo = new Date(today);
                 weekAgo.setDate(today.getDate() - 7);
+                startDate = weekAgo.toISOString().split('T')[0];  
+                endDate = today.toISOString().split('T')[0];      
                 break;
             case 'month':
                 const monthAgo = new Date(today);
                 monthAgo.setDate(today.getDate() - 30);
                 startDate = monthAgo.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
                 break;
             case 'all':
                 default:
