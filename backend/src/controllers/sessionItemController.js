@@ -42,7 +42,7 @@ exports.addItem = async (req, res) => {
         }
 
         // Validate item_type
-        const allowedTypes = ['scale', 'piece', 'technique', 'sight-reading'];
+        const allowedTypes = ['scale', 'piece', 'technique', 'excercise', 'warmup', 'other'];
         if (!allowedTypes.includes(item_type.toLowerCase())) {
             return res.status(400).json({
                 success: false,
