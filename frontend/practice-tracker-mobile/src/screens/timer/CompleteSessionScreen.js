@@ -29,6 +29,8 @@ export default function CompleteSessionScreen({ navigation }) {
 
             // Get session summary
             const summary = getSessionSummary();
+
+            console.log('Session summary: ', summary);
             const actualDuration = Math.max(1, summary.actual_duration);
 
             // Create session in backend
@@ -73,7 +75,9 @@ export default function CompleteSessionScreen({ navigation }) {
             // Show success
             Alert.alert(
                 'Session Saved! 🎉',
-                `Great practice! You completed ${laps.length} laps in ${Math.round(elapsedSeconds / 60)} minutes.`,
+                actualDuration >= summary.total_duration
+                    ? `Great practice! You completed ${laps.length} lap${laps.length !== 1 ? 's' : ''} in ${Math.round(elapsedSeconds / 60)} minutes.`
+                    : `Session saved! You practiced for ${Math.round(elapsedSeconds / 60)} of ${summary.total_duration} minutes with ${laps.length} lap${laps.length !== 1 ? 's' : ''}.`,
                 [
                     {
                         text: 'View Session',
@@ -120,17 +124,27 @@ export default function CompleteSessionScreen({ navigation }) {
     };
 
     const totalMinutes = Math.round(elapsedSeconds / 60);
+    const isComplete = totalMinutes >= (sessionData?.total_duration || 0);
 
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.emoji}>🎉</Text>
-                    <Text style={styles.title}>Practice Complete!</Text>
-                    <Text style={styles.subtitle}>Great work on your session</Text>
+                <View style={[styles.header, { backgroundColor: isComplete ? '#4caf50' : '#ff9800' }]}>
+                    <Text style={styles.emoji}>
+                        {totalMinutes >= (sessionData?.total_duration || 0) ? '🎉' : '⏸️'}
+                    </Text>
+                    <Text style={styles.title}>
+                        {totalMinutes >= (sessionData?.total_duration || 0)
+                            ? 'Practice Complete!'
+                            : 'Session Ended Early'}
+                    </Text>
+                    <Text style={styles.subtitle}>
+                        {totalMinutes >= (sessionData?.total_duration || 0)
+                            ? 'Great work on your session'
+                            : 'Your progress has been saved'}
+                    </Text>
                 </View>
-
                 {/* Summary Cards */}
                 <View style={styles.summaryContainer}>
                     <View style={styles.summaryCard}>
@@ -374,4 +388,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
+    
 });

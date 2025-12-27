@@ -57,16 +57,26 @@ export default function ActiveTimerScreen({ navigation }) {
 
     const handleStop = () => {
         Alert.alert(
-            'Stop Practice?',
-            'Are you sure you want to stop this practice session? All progress will be lost.',
+            'End Practice Early?',
+            'Do you want to save your progress or discard this session?',
             [
-                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Stop',
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Discard',
                     style: 'destructive',
                     onPress: async () => {
                         await stopTimer();
                         navigation.navigate('SessionsList');
+                    },
+                },
+                {
+                    text: 'Save Progress',
+                    onPress: () => {
+                        // End session early but save it
+                        navigation.navigate('CompleteSession');
                     },
                 },
             ]

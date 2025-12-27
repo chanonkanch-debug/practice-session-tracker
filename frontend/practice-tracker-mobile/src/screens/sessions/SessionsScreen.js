@@ -56,9 +56,9 @@ export default function SessionsScreen({ navigation }) {
     navigation.navigate('SessionDetail', { session });
   };
 
-  // Navigate to add session
-  const handleAddSession = () => {
-    navigation.navigate('AddSession');
+  // Navigate to timer (changed from AddSession)
+  const handleStartPractice = () => {
+    navigation.navigate('StartPracticeTimer');
   };
 
   // Loading state
@@ -87,10 +87,10 @@ export default function SessionsScreen({ navigation }) {
       {/* Sessions List */}
       {sessions.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📝</Text>
+          <Text style={styles.emptyIcon}>⏱️</Text>
           <Text style={styles.emptyTitle}>No Sessions Yet</Text>
           <Text style={styles.emptyText}>
-            Start tracking your practice by tapping the + button below!
+            Start your first practice session by tapping the timer button below!
           </Text>
         </View>
       ) : (
@@ -110,6 +110,7 @@ export default function SessionsScreen({ navigation }) {
               key={session.id}
               date={new Date(session.practice_date).toLocaleDateString()}
               duration={session.total_duration}
+              actualDuration={session.actual_duration}
               instrument={session.instrument}
               notes={session.session_notes}
               onPress={() => handleSessionPress(session)}
@@ -120,13 +121,13 @@ export default function SessionsScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {/* Floating Action Button (FAB) */}
+      {/* Floating Action Button (FAB) - Changed to Timer */}
       <TouchableOpacity 
         style={styles.fab}
-        onPress={handleAddSession}
+        onPress={handleStartPractice}
         activeOpacity={0.8}
       >
-        <Text style={styles.fabIcon}>+</Text>
+        <Text style={styles.fabIcon}>⏱️</Text>
       </TouchableOpacity>
     </View>
   );

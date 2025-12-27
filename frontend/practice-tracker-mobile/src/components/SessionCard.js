@@ -1,11 +1,28 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-export default function SessionCard({ date, duration, instrument, notes, onPress }) {
+export default function SessionCard({ date, duration, actualDuration, instrument, notes, onPress }) {
+  // Check if this was a timer session that ended early
+  const wasTimerSession = actualDuration !== null && actualDuration !== undefined;
+  const endedEarly = wasTimerSession && actualDuration < duration;
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.cardHeader}>
         <Text style={styles.date}>{date}</Text>
-        <Text style={styles.duration}>{duration} min</Text>
+        <View style={styles.durationContainer}>
+          {endedEarly ? (
+            // Show actual duration with goal crossed out
+            <View>
+              <Text style={styles.durationActual}>{actualDuration} min</Text>
+              <Text style={styles.durationGoal}>Goal: {duration}m</Text>
+            </View>
+          ) : (
+            // Show regular duration
+            <Text style={styles.duration}>
+              {wasTimerSession ? actualDuration : duration} min
+            </Text>
+          )}
+        </View>
       </View>
       
       <View style={styles.cardBody}>
@@ -45,10 +62,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  durationContainer: {
+    alignItems: 'flex-end',
+  },
   duration: {
     fontSize: 16,
     color: '#6200ee',
     fontWeight: '600',
+  },
+  durationActual: {
+    fontSize: 16,
+    color: '#ff9800',  // Orange for early-ended sessions
+    fontWeight: '600',
+  },
+  durationGoal: {
+    fontSize: 11,
+    color: '#999',
+    textDecorationLine: 'line-through',
   },
   cardBody: {
     gap: 5,
