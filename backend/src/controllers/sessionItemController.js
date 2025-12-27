@@ -1,3 +1,6 @@
+const SessionItem = require('../models/SessionItem');
+const PracticeSession = require('../models/PracticeSession');
+
 // Add item to a session
 exports.addItem = async (req, res) => {
     try {
@@ -85,7 +88,7 @@ exports.addItem = async (req, res) => {
         }
 
         // Validate difficulty_level (if provided)
-        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];  // Added easy/medium/hard
+        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];  
             if (difficulty_level && !allowedDifficulties.includes(difficulty_level.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
@@ -265,8 +268,8 @@ exports.updateItem = async (req, res) => {
                 : existingItem.difficulty_level,
             notes: notes !== undefined ? notes : existingItem.notes,
             lap_number: lap_number !== undefined ? lap_number : existingItem.lap_number,           // NEW
-            started_at: started_at !== undefined ? lap_started_at : existingItem.started_at, // NEW
-            ended_at: ended_at !== undefined ? lap_ended_at : existingItem.ended_at      // NEW
+            started_at: started_at !== undefined ? started_at : existingItem.started_at, // NEW
+            ended_at: ended_at !== undefined ? ended_at : existingItem.ended_at      // NEW
         };
 
         // Validate updated data
@@ -285,7 +288,7 @@ exports.updateItem = async (req, res) => {
             });
         }
 
-        const allowedDifficulties = ['beginner', 'intermediate', 'advanced']; 
+        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];  
         if (updatedData.difficulty_level && !allowedDifficulties.includes(updatedData.difficulty_level)) {
             return res.status(400).json({
                 success: false,
