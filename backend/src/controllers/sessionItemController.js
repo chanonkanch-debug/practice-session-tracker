@@ -42,7 +42,7 @@ exports.addItem = async (req, res) => {
         }
 
         // Validate item_type
-        const allowedTypes = ['scale', 'piece', 'technique', 'excercise', 'warmup', 'other'];
+        const allowedTypes = ['scale', 'piece', 'technique', 'exercise', 'warmup', 'other'];
         if (!allowedTypes.includes(item_type.toLowerCase())) {
             return res.status(400).json({
                 success: false,
@@ -247,7 +247,7 @@ exports.updateItem = async (req, res) => {
         };
 
         // Validate updated data
-        const allowedTypes = ['scale', 'piece', 'technique', 'excercise', 'warmup', 'other'];
+        const allowedTypes = ['scale', 'piece', 'technique', 'exercise', 'warmup', 'other'];
             if (!allowedTypes.includes(updatedData.item_type)) {
             return res.status(400).json({
                 success: false,
