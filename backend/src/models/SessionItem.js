@@ -18,7 +18,7 @@ class SessionItem {
         const query = `
             INSERT INTO session_items 
                 (session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
-                 difficulty_level, notes, lap_number, lap_started_at, lap_ended_at)
+                 difficulty_level, notes, lap_number, started_at, ended_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
                       difficulty_level, notes, lap_number, started_at, ended_at, created_at
@@ -106,8 +106,8 @@ class SessionItem {
                 difficulty_level = COALESCE($5, difficulty_level),
                 notes = COALESCE($6, notes),
                 lap_number = COALESCE($7, lap_number),
-                lap_started_at = COALESCE($8, lap_started_at),
-                lap_ended_at = COALESCE($9, lap_ended_at)
+                tarted_at = COALESCE($8, started_at),
+                ended_at = COALESCE($9, lap_ended_at)
             WHERE id = $10
             RETURNING id, session_id, item_type, item_name, tempo_bpm, time_spent_minutes, 
                       difficulty_level, notes, lap_number, started_at, ended_at, created_at
