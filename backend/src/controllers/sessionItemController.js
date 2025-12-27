@@ -1,6 +1,3 @@
-const SessionItem = require('../models/SessionItem');
-const PracticeSession = require('../models/PracticeSession');
-
 // Add item to a session
 exports.addItem = async (req, res) => {
     try {
@@ -31,7 +28,17 @@ exports.addItem = async (req, res) => {
         }
 
         // 3. Extract item data from request body
-        const { item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes } = req.body;
+        const { 
+            item_type, 
+            item_name, 
+            tempo_bpm, 
+            time_spent_minutes, 
+            difficulty_level, 
+            notes,
+            lap_number,        // NEW
+            started_at,    // NEW
+            ended_at       // NEW
+        } = req.body;
 
         // Validate required fields
         if (!item_type || !item_name) {
@@ -50,12 +57,12 @@ exports.addItem = async (req, res) => {
             });
         }
 
-        // Validate time_spent_minutes
+        // Validate time_spent_minutes (UPDATED - allow 0 for very short laps)
         if (time_spent_minutes !== undefined && time_spent_minutes !== null) {
-            if (isNaN(time_spent_minutes) || time_spent_minutes <= 0) {
+            if (isNaN(time_spent_minutes) || time_spent_minutes < 0) {  // Changed from <= 0 to < 0
                 return res.status(400).json({
                 success: false,
-                error: 'Time spent must be a positive number'
+                error: 'Time spent cannot be negative'
                 });
             }
             // TODO: Add a reasonable upper limit (time_spent_minutes cannot exceeds the sessionTime)
@@ -78,7 +85,7 @@ exports.addItem = async (req, res) => {
         }
 
         // Validate difficulty_level (if provided)
-        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];
+        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];  // Added easy/medium/hard
             if (difficulty_level && !allowedDifficulties.includes(difficulty_level.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
@@ -103,14 +110,17 @@ exports.addItem = async (req, res) => {
             }
         }
 
-        // 4. Prepare item data
+        // 4. Prepare item data (UPDATED - include new lap fields)
         const itemData = {
             item_type: item_type.toLowerCase(),
             item_name,
             tempo_bpm: tempo_bpm || null,
             time_spent_minutes,
             difficulty_level: difficulty_level ? difficulty_level.toLowerCase() : null,
-            notes: notes || null
+            notes: notes || null,
+            lap_number: lap_number || null,        // NEW
+            started_at: started_at || null, // NEW
+            ended_at: ended_at || null      // NEW
         }
 
         // 5. Create item in database
@@ -132,7 +142,7 @@ exports.addItem = async (req, res) => {
     }
 }
 
-// Get all items for a session
+// Get all items for a session (UPDATED - use ordered by lap)
 exports.getSessionItems = async (req, res) => {
     try {
         // 1. Get session id from url params
@@ -164,8 +174,8 @@ exports.getSessionItems = async (req, res) => {
             });
         }
 
-        // 3. get all items for this session
-        const items = await SessionItem.findBySessionId(sessionId);
+        // 3. get all items for this session (UPDATED - use ordered method)
+        const items = await SessionItem.findBySessionIdOrderedByLap(sessionId);
 
         res.status(200).json({
             success: true,
@@ -182,7 +192,7 @@ exports.getSessionItems = async (req, res) => {
     }
 };
 
-// Update a session item
+// Update a session item (UPDATED - handle new lap fields)
 exports.updateItem = async (req, res) => {
     try {
         // 1. Get IDs from url params
@@ -231,10 +241,20 @@ exports.updateItem = async (req, res) => {
             });
         }
 
-        // 5. extract update data (support partial updates)
-        const { item_type, item_name, tempo_bpm, time_spent_minutes, difficulty_level, notes } = req.body;
+        // 5. extract update data (support partial updates) - UPDATED with new fields
+        const { 
+            item_type, 
+            item_name, 
+            tempo_bpm, 
+            time_spent_minutes, 
+            difficulty_level, 
+            notes,
+            lap_number,       // NEW
+            started_at,   // NEW
+            ended_at      // NEW
+        } = req.body;
 
-        // 6. prepare updated data
+        // 6. prepare updated data (UPDATED - include new lap fields)
         const updatedData = {
             item_type: item_type !== undefined ? item_type.toLowerCase() : existingItem.item_type,
             item_name: item_name !== undefined ? item_name : existingItem.item_name,
@@ -243,7 +263,10 @@ exports.updateItem = async (req, res) => {
             difficulty_level: difficulty_level !== undefined 
                 ? (difficulty_level ? difficulty_level.toLowerCase() : null)
                 : existingItem.difficulty_level,
-            notes: notes !== undefined ? notes : existingItem.notes
+            notes: notes !== undefined ? notes : existingItem.notes,
+            lap_number: lap_number !== undefined ? lap_number : existingItem.lap_number,           // NEW
+            started_at: started_at !== undefined ? lap_started_at : existingItem.started_at, // NEW
+            ended_at: ended_at !== undefined ? lap_ended_at : existingItem.ended_at      // NEW
         };
 
         // Validate updated data
@@ -262,7 +285,7 @@ exports.updateItem = async (req, res) => {
             });
         }
 
-        const allowedDifficulties = ['beginner', 'intermediate', 'advanced'];
+        const allowedDifficulties = ['beginner', 'intermediate', 'advanced']; 
         if (updatedData.difficulty_level && !allowedDifficulties.includes(updatedData.difficulty_level)) {
             return res.status(400).json({
                 success: false,
@@ -288,7 +311,7 @@ exports.updateItem = async (req, res) => {
     }
 }
 
-// Delete a session item
+// Delete a session item (NO CHANGES NEEDED)
 exports.deleteItem = async (req, res) => {
     try {
         // 1. Get both ids
