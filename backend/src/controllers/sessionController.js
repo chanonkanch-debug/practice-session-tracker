@@ -3,8 +3,20 @@ const PracticeSession = require('../models/PracticeSession');
 // create a new practice session
 exports.createSession = async (req, res) => {
     try {
-        //extract data from request body
-        const { practice_date, total_duration, instrument, session_notes } = req.body;
+        //extract data from request body (UPDATED - added new fields)
+        const { 
+            practice_date, 
+            total_duration, 
+            instrument, 
+            session_notes,
+            actual_duration,    // NEW
+            status,             // NEW
+            started_at,         // NEW
+            completed_at        // NEW
+        } = req.body;
+
+        // Log received data for debugging
+        console.log('Received session data:', req.body);
 
         //validate required fields (non-nullable)
         if (!practice_date || !total_duration) {
@@ -32,24 +44,41 @@ exports.createSession = async (req, res) => {
         }
 
         //validate instrument (optional field, but if provided, should be from allowed list)
-        const allowedInstrument = ['piano', 'guitar', 'drums', 'bass', 'violin', 'other']
-        if (instrument && !allowedInstrument.includes(instrument.toLowerCase())) {
+        const allowedInstruments = ['piano', 'guitar', 'drums', 'bass', 'violin', 'other'];
+        if (instrument && !allowedInstruments.includes(instrument.toLowerCase())) {
             return res.status(400).json({
                 success: false,
                 error: `Instrument must be one of: ${allowedInstruments.join(', ')}`
             });
         }
 
-        // CREATE session data object
+        // Validate status if provided (NEW)
+        const allowedStatuses = ['active', 'paused', 'completed', 'abandoned'];
+        if (status && !allowedStatuses.includes(status.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                error: `Status must be one of: ${allowedStatuses.join(', ')}`
+            });
+        }
+
+        // CREATE session data object (UPDATED - include new fields)
         const sessionData = {
             practice_date,
             total_duration: parseInt(total_duration),
             instrument: instrument ? instrument.toLowerCase() : null,
-            session_notes: session_notes || null
-        }
+            session_notes: session_notes || null,
+            actual_duration: actual_duration ? parseInt(actual_duration) : null,  // NEW
+            status: status ? status.toLowerCase() : 'completed',                  // NEW
+            started_at: started_at || null,                                       // NEW
+            completed_at: completed_at || null                                    // NEW
+        };
+
+        console.log('Creating session with data:', sessionData);
 
         // create session into the database (req.userId -> comes from middleware 'protected')
         const newSession = await PracticeSession.create(req.userId, sessionData);
+
+        console.log('Session created:', newSession);
 
         // return success response
         res.status(201).json({
@@ -127,7 +156,6 @@ exports.getSessionById = async (req, res) => {
             session: session
         });
 
-
     } catch (error) {
         console.error('Get session by ID error:', error);
         res.status(500).json({
@@ -137,7 +165,7 @@ exports.getSessionById = async (req, res) => {
     }
 }
 
-//update controller
+//update controller (UPDATED - support new fields)
 exports.updateSession = async (req, res) => {
     try {
         //get session id
@@ -168,16 +196,29 @@ exports.updateSession = async (req, res) => {
             });
         }
 
-        //extract update data from request body
-        const { practice_date, total_duration, instrument, session_notes } = req.body;
+        //extract update data from request body (UPDATED - added new fields)
+        const { 
+            practice_date, 
+            total_duration, 
+            instrument, 
+            session_notes,
+            actual_duration,    // NEW
+            status,             // NEW
+            started_at,         // NEW
+            completed_at        // NEW
+        } = req.body;
 
-        //use existing values if fields not provided (partial update)
+        //use existing values if fields not provided (partial update) (UPDATED)
         const updatedData = {
             practice_date: practice_date || existingSession.practice_date,
             total_duration: total_duration !== undefined ? total_duration : existingSession.total_duration,
             instrument: instrument !== undefined ? instrument : existingSession.instrument,
-            session_notes: session_notes !== undefined ? session_notes : existingSession.session_notes
-        }
+            session_notes: session_notes !== undefined ? session_notes : existingSession.session_notes,
+            actual_duration: actual_duration !== undefined ? actual_duration : existingSession.actual_duration,  // NEW
+            status: status !== undefined ? status : existingSession.status,                                      // NEW
+            started_at: started_at !== undefined ? started_at : existingSession.started_at,                      // NEW
+            completed_at: completed_at !== undefined ? completed_at : existingSession.completed_at               // NEW
+        };
 
         // validate duration
         if (updatedData.total_duration <= 0 || isNaN(updatedData.total_duration)) {
@@ -202,16 +243,30 @@ exports.updateSession = async (req, res) => {
 
         // Validate instrument
         const allowedInstruments = ['piano', 'guitar', 'drums', 'violin', 'bass', 'other'];
-            if (updatedData.instrument && !allowedInstruments.includes(updatedData.instrument.toLowerCase())) {
+        if (updatedData.instrument && !allowedInstruments.includes(updatedData.instrument.toLowerCase())) {
             return res.status(400).json({
                 success: false,
                 error: `Instrument must be one of: ${allowedInstruments.join(', ')}`
             });
         }
 
+        // Validate status if provided (NEW)
+        const allowedStatuses = ['active', 'paused', 'completed', 'abandoned'];
+        if (updatedData.status && !allowedStatuses.includes(updatedData.status.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                error: `Status must be one of: ${allowedStatuses.join(', ')}`
+            });
+        }
+
         // Normalize instrument
         if (updatedData.instrument) {
             updatedData.instrument = updatedData.instrument.toLowerCase();
+        }
+
+        // Normalize status (NEW)
+        if (updatedData.status) {
+            updatedData.status = updatedData.status.toLowerCase();
         }
 
         // Update session in database
@@ -223,7 +278,6 @@ exports.updateSession = async (req, res) => {
             message: 'Session updated successfully',
             session: updatedSession
         });
-
 
     } catch (error) {
         console.error('Update session error:', error);
