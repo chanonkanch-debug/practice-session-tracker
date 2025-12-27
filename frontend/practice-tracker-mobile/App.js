@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
+import { TimerProvider } from './src/context/TimerContext';
 
 // Import screens
 import LoginScreen from './src/screens/auth/LoginScreen';
@@ -14,6 +15,12 @@ import SessionDetailScreen from './src/screens/sessions/SessionDetailScreen';
 import AddEditSessionScreen from './src/screens/sessions/AddSessionScreen';
 import StatsScreen from './src/screens/stats/StatsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
+
+// Add timer screen imports
+import StartSessionScreen from './src/screens/timer/StartSessionScreen';
+import ActiveTimerScreen from './src/screens/timer/ActiveTimerScreen';
+import AddLapScreen from './src/screens/timer/AddLapScreen';
+import CompleteSessionScreen from './src/screens/timer/CompleteSessionScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,45 +35,140 @@ function AuthStack() {
   );
 }
 
+// Create Timer Stack Navigator
+function TimerStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="StartSession"
+        component={StartSessionScreen}
+        options={{
+          title: 'Start Practice',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen
+        name="ActiveTimer"
+        component={ActiveTimerScreen}
+        options={{
+          title: 'Practice Session',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' },
+          headerLeft: () => null, // Prevent going back
+        }}
+      />
+      <Stack.Screen
+        name="AddLap"
+        component={AddLapScreen}
+        options={{
+          title: 'Add Lap',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen
+        name="CompleteSession"
+        component={CompleteSessionScreen}
+        options={{
+          title: 'Session Complete',
+          headerStyle: { backgroundColor: '#4caf50' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' },
+          headerLeft: () => null, // Prevent going back
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 // Sessions Stack (List -> Detail -> Edit/Add)
 function SessionsStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="SessionsList" 
+      <Stack.Screen
+        name="SessionsList"
         component={SessionsScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="SessionDetail" 
+      <Stack.Screen
+        name="SessionDetail"
         component={SessionDetailScreen}
-        options={{ 
+        options={{
           title: 'Session Details',
           headerStyle: { backgroundColor: '#6200ee' },
           headerTintColor: 'white',
           headerTitleStyle: { fontWeight: 'bold' }
         }}
       />
-      <Stack.Screen 
-        name="AddSession" 
+      <Stack.Screen
+        name="AddSession"
         component={AddEditSessionScreen}
-        options={{ 
+        options={{
           title: 'Add Session',
           headerStyle: { backgroundColor: '#6200ee' },
           headerTintColor: 'white',
           headerTitleStyle: { fontWeight: 'bold' }
         }}
       />
-      <Stack.Screen 
-        name="EditSession" 
+      <Stack.Screen
+        name="EditSession"
         component={AddEditSessionScreen}
-        options={{ 
+        options={{
           title: 'Edit Session',
           headerStyle: { backgroundColor: '#6200ee' },
           headerTintColor: 'white',
           headerTitleStyle: { fontWeight: 'bold' }
         }}
       />
+
+      {/* ADD TIMER SCREENS HERE */}
+      <Stack.Screen
+        name="StartPracticeTimer"
+        component={StartSessionScreen}
+        options={{
+          title: 'Start Practice',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen
+        name="ActiveTimer"
+        component={ActiveTimerScreen}
+        options={{
+          title: 'Practice Session',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' },
+          headerLeft: () => null,
+        }}
+      />
+      <Stack.Screen
+        name="AddLap"
+        component={AddLapScreen}
+        options={{
+          title: 'Add Lap',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen
+        name="CompleteSession"
+        component={CompleteSessionScreen}
+        options={{
+          title: 'Session Complete',
+          headerStyle: { backgroundColor: '#4caf50' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' },
+          headerLeft: () => null,
+        }}
+      />
+
     </Stack.Navigator>
   );
 }
@@ -85,8 +187,8 @@ function MainTabs() {
         },
       }}
     >
-      <Tab.Screen 
-        name="Home" 
+      <Tab.Screen
+        name="Home"
         component={HomeScreen}
         options={{
           headerShown: false,
@@ -95,9 +197,9 @@ function MainTabs() {
           ),
         }}
       />
-      
-      <Tab.Screen 
-        name="SessionsTab" 
+
+      <Tab.Screen
+        name="SessionsTab"
         component={SessionsStack}
         options={{
           headerShown: false,
@@ -108,8 +210,8 @@ function MainTabs() {
         }}
       />
 
-      <Tab.Screen 
-        name="Stats" 
+      <Tab.Screen
+        name="Stats"
         component={StatsScreen}
         options={{
           headerShown: false,
@@ -119,8 +221,8 @@ function MainTabs() {
         }}
       />
 
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name="Profile"
         component={ProfileScreen}
         options={{
           headerShown: false,
@@ -158,7 +260,9 @@ function AppNavigator() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <TimerProvider>
+        <AppNavigator />
+      </TimerProvider>
     </AuthProvider>
   );
 }

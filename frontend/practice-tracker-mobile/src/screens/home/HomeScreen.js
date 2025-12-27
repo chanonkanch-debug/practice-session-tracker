@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
+import {
+  StyleSheet,
+  Text,
+  View,
   ScrollView,
   TouchableOpacity,
   RefreshControl,
@@ -16,10 +16,10 @@ import { CombinedApi } from '../../services/api';
 
 export default function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Dashboard data
   const [todayMinutes, setTodayMinutes] = useState(0);
   const [todaySessionCount, setTodaySessionCount] = useState(0);
@@ -71,9 +71,11 @@ export default function HomeScreen({ navigation }) {
     fetchDashboardData();
   };
 
-  // Navigate to add session
+  // Navigate to timer (instead of static add session)
   const handleStartPractice = () => {
-    navigation.navigate('SessionsTab', { screen: 'AddSession' });
+    navigation.navigate('SessionsTab', {
+      screen: 'StartPracticeTimer'  // Changed from 'AddSession'
+    });
   };
 
   // Navigate to stats
@@ -83,9 +85,9 @@ export default function HomeScreen({ navigation }) {
 
   // Navigate to session detail
   const handleSessionPress = (session) => {
-    navigation.navigate('SessionsTab', { 
-      screen: 'SessionDetail', 
-      params: { session } 
+    navigation.navigate('SessionsTab', {
+      screen: 'SessionDetail',
+      params: { session }
     });
   };
 
@@ -106,7 +108,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         refreshControl={
           <RefreshControl
@@ -120,9 +122,9 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeText}>Welcome Back, {user?.username}! 👋</Text>
           <Text style={styles.date}>
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              month: 'long', 
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'long',
               day: 'numeric',
               year: 'numeric'
             })}
@@ -132,18 +134,18 @@ export default function HomeScreen({ navigation }) {
         {/* Today's Practice Summary */}
         <View style={styles.todaySection}>
           <Text style={styles.sectionTitle}>Today's Practice</Text>
-          
+
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{todayMinutes}</Text>
               <Text style={styles.statLabel}>Minutes</Text>
             </View>
-            
+
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{todaySessionCount}</Text>
               <Text style={styles.statLabel}>Sessions</Text>
             </View>
-            
+
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{currentStreak}</Text>
               <Text style={styles.statLabel}>Day Streak</Text>
@@ -153,7 +155,7 @@ export default function HomeScreen({ navigation }) {
           {todaySessionCount === 0 && (
             <View style={styles.motivationBox}>
               <Text style={styles.motivationText}>
-                {currentStreak > 0 
+                {currentStreak > 0
                   ? `🔥 Keep your ${currentStreak}-day streak alive!`
                   : "🎵 Start your practice for today!"
                 }
@@ -198,7 +200,7 @@ export default function HomeScreen({ navigation }) {
             </View>
 
             {recentSessions.map((session) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={session.id}
                 style={styles.recentSessionCard}
                 onPress={() => handleSessionPress(session)}
@@ -229,8 +231,8 @@ export default function HomeScreen({ navigation }) {
         {/* Quick Actions */}
         <View style={styles.actionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleStartPractice}
           >
@@ -241,7 +243,7 @@ export default function HomeScreen({ navigation }) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.actionButton}
             onPress={handleViewStats}
           >

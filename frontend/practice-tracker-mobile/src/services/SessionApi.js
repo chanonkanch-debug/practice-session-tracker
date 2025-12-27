@@ -15,14 +15,14 @@ export const SessionApi = {
                 }
             });
 
-            const data = await response.json(); 
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to get sessions');
             }
 
             return data;
-        } catch(error) {
+        } catch (error) {
             console.log('Get sessions error:', error);
             throw error;
         }
@@ -40,7 +40,7 @@ export const SessionApi = {
                     'Content-Type': 'application/json',
                 },
             });
-            
+
             const data = await response.json();
 
             if (!response.ok) {
@@ -94,7 +94,7 @@ export const SessionApi = {
                 },
                 body: JSON.stringify(sessionData),
             });
-            
+
             const data = await response.json();
 
             if (!response.ok) {
@@ -132,5 +132,34 @@ export const SessionApi = {
             console.log('Delete session error', error);
             throw error;
         }
-    }
+    },
+
+    // Create a session item (lap)
+    createSessionItem: async (sessionId, itemData) => {
+        try {
+            console.log('Creating session item for session:', sessionId, itemData);
+
+            const response = await fetch(`${API_URL}api/sessions/${sessionId}/items`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(itemData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create session item');
+            }
+
+            return data;
+        } catch (error) {
+            console.log('Create session item error:', error);
+            throw error;
+        }
+    },
+
+    
 }
