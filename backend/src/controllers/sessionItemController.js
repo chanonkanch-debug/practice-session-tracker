@@ -247,7 +247,7 @@ exports.updateItem = async (req, res) => {
         };
 
         // Validate updated data
-        const allowedTypes = ['scale', 'piece', 'technique', 'sight-reading'];
+        const allowedTypes = ['scale', 'piece', 'technique', 'excercise', 'warmup', 'other'];
             if (!allowedTypes.includes(updatedData.item_type)) {
             return res.status(400).json({
                 success: false,
