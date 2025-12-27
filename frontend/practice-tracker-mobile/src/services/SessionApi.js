@@ -54,6 +54,32 @@ export const SessionApi = {
         }
     },
 
+    // Get session with items (detailed view)
+    getSessionWithItems: async (sessionId) => {
+        try {
+            console.log('Fetching session with items:', sessionId);
+
+            const response = await fetch(`${API_URL}api/sessions/${sessionId}/items`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to get session items');
+            }
+
+            return data;
+        } catch (error) {
+            console.log('Get session items error:', error);
+            throw error;
+        }
+    },
+
     // Post, Create new Session
     createSession: async (sessionData) => {
         try {
@@ -161,5 +187,5 @@ export const SessionApi = {
         }
     },
 
-    
+
 }
