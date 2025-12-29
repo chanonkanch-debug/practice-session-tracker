@@ -24,7 +24,6 @@ export default function HomeScreen({ navigation }) {
   const [todayMinutes, setTodayMinutes] = useState(0);
   const [todaySessionCount, setTodaySessionCount] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
-  const [recentSessions, setRecentSessions] = useState([]);
   const [weekStats, setWeekStats] = useState(null);
 
   // Fetch dashboard data when screen loads
@@ -53,7 +52,7 @@ export default function HomeScreen({ navigation }) {
       setTodayMinutes(summaryData.todayMinutes);
       setTodaySessionCount(summaryData.todaySessionCount);
       setCurrentStreak(summaryData.currentStreak);
-      setRecentSessions(summaryData.recentSessions);
+      // setRecentSessions(summaryData.recentSessions);
       setWeekStats(weekData);
 
     } catch (error) {
@@ -186,45 +185,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.weekValue}>{weekStats.averageMinutes}m</Text>
               </View>
             </View>
-          </View>
-        )}
-
-        {/* Recent Sessions */}
-        {recentSessions.length > 0 && (
-          <View style={styles.recentSection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Recent Sessions</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('SessionsTab')}>
-                <Text style={styles.seeAllText}>See All →</Text>
-              </TouchableOpacity>
-            </View>
-
-            {recentSessions.map((session) => (
-              <TouchableOpacity
-                key={session.id}
-                style={styles.recentSessionCard}
-                onPress={() => handleSessionPress(session)}
-              >
-                <View style={styles.sessionLeft}>
-                  <Text style={styles.sessionInstrument}>
-                    {session.instrument || '🎵'}
-                  </Text>
-                  <View>
-                    <Text style={styles.sessionDate}>
-                      {new Date(session.practice_date).toLocaleDateString()}
-                    </Text>
-                    {session.session_notes && (
-                      <Text style={styles.sessionNotes} numberOfLines={1}>
-                        {session.session_notes}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <Text style={styles.sessionDuration}>
-                  {session.total_duration}m
-                </Text>
-              </TouchableOpacity>
-            ))}
           </View>
         )}
 

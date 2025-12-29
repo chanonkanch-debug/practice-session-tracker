@@ -28,8 +28,14 @@ export const CombinedApi = {
                 return sessionDate === today;
             });
 
+            // Calculate today's actual minutes (use actual_duration if available)
+            const todayMinutes = todaySessions.reduce((sum, session) => {
+                const duration = session.actual_duration || session.total_duration;
+                return sum + duration;
+            }, 0);
+
             return {
-                todayMinutes: totalTimeData.totalMinutes,
+                todayMinutes: todayMinutes,
                 todaySessionCount: todaySessions.length,
                 currentStreak: streakData.currentStreak,
                 recentSessions: sessionsData.sessions.slice(0, 3), // Last 3 sessions

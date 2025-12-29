@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
+import {
+  StyleSheet,
+  Text,
+  View,
   ScrollView,
   RefreshControl,
   ActivityIndicator,
@@ -15,7 +15,7 @@ import { StatsApi } from '../../services/StatsApi';
 export default function StatsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Stats data
   const [totalTime, setTotalTime] = useState(null);
   const [streak, setStreak] = useState(null);
@@ -99,6 +99,18 @@ export default function StatsScreen() {
     );
   }
 
+  // Inside StatsScreen component, add this helper
+  const getInstrumentEmoji = (instrument) => {
+    if (!instrument) return '🎵';
+    const lower = instrument.toLowerCase();
+    if (lower.includes('piano')) return '🎹';
+    if (lower.includes('guitar')) return '🎸';
+    if (lower.includes('drum')) return '🥁';
+    if (lower.includes('violin')) return '🎻';
+    if (lower.includes('bass')) return '🎸';
+    return '🎵';
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -107,7 +119,7 @@ export default function StatsScreen() {
         <Text style={styles.subtitle}>Your practice insights</Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         refreshControl={
           <RefreshControl
@@ -121,7 +133,7 @@ export default function StatsScreen() {
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Time Period:</Text>
           <View style={styles.filterButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.filterButton, timeframe === 'today' && styles.filterButtonActive]}
               onPress={() => handleTimeframeChange('today')}
             >
@@ -129,7 +141,7 @@ export default function StatsScreen() {
                 Today
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.filterButton, timeframe === 'week' && styles.filterButtonActive]}
               onPress={() => handleTimeframeChange('week')}
             >
@@ -137,7 +149,7 @@ export default function StatsScreen() {
                 Week
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.filterButton, timeframe === 'month' && styles.filterButtonActive]}
               onPress={() => handleTimeframeChange('month')}
             >
@@ -145,7 +157,7 @@ export default function StatsScreen() {
                 Month
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.filterButton, timeframe === 'all' && styles.filterButtonActive]}
               onPress={() => handleTimeframeChange('all')}
             >
@@ -156,16 +168,40 @@ export default function StatsScreen() {
           </View>
         </View>
 
-        {/* Total Practice Time */}
+        {/* Total Practice Time - ENHANCED */}
         {totalTime && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Practice Time</Text>
-            <Text style={styles.cardValue}>{totalTime.totalMinutes} minutes</Text>
-            <Text style={styles.cardSubtitle}>
-              {totalTime.hours} hours {totalTime.minutes} minutes
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Total Practice Time</Text>
+              <Text style={styles.cardBadge}>
+                {timeframe === 'today' ? '📅 Today' :
+                  timeframe === 'week' ? '📅 This Week' :
+                    timeframe === 'month' ? '📅 This Month' : '📅 All Time'}
+              </Text>
+            </View>
+
+            <Text style={styles.cardValue}>
+              {totalTime.hours}h {totalTime.minutes}m
             </Text>
-            <Text style={styles.cardInfo}>
-              {totalTime.sessionCount} sessions • Avg: {totalTime.averageMinutes} min/session
+
+            <Text style={styles.cardSubtitle}>
+              {totalTime.totalMinutes} total minutes
+            </Text>
+
+            <View style={styles.cardStats}>
+              <View style={styles.cardStat}>
+                <Text style={styles.cardStatValue}>{totalTime.sessionCount}</Text>
+                <Text style={styles.cardStatLabel}>Sessions</Text>
+              </View>
+              <View style={styles.cardStatDivider} />
+              <View style={styles.cardStat}>
+                <Text style={styles.cardStatValue}>{totalTime.averageMinutes}</Text>
+                <Text style={styles.cardStatLabel}>Avg/Session</Text>
+              </View>
+            </View>
+
+            <Text style={styles.cardNote}>
+              ⏱️ Based on actual practice time
             </Text>
           </View>
         )}
@@ -219,36 +255,44 @@ export default function StatsScreen() {
           </View>
         )}
 
-        {/* Instrument Breakdown */}
+        {/* Instrument Breakdown - ENHANCED */}
         {instruments.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Practice by Instrument</Text>
+            <Text style={styles.cardSubtitle}>
+              Time distribution across instruments
+            </Text>
+
             {instruments.map((instrument, index) => (
               <View key={index} style={styles.instrumentItem}>
                 <View style={styles.instrumentHeader}>
-                  <Text style={styles.instrumentName}>
-                    {instrument.instrument || 'Not specified'}
-                  </Text>
+                  <View style={styles.instrumentLeft}>
+                    <Text style={styles.instrumentEmoji}>
+                      {getInstrumentEmoji(instrument.instrument)}
+                    </Text>
+                    <Text style={styles.instrumentName}>
+                      {instrument.instrument || 'Not specified'}
+                    </Text>
+                  </View>
                   <Text style={styles.instrumentPercentage}>
                     {instrument.percentage}%
                   </Text>
                 </View>
                 <View style={styles.progressBar}>
-                  <View 
+                  <View
                     style={[
-                      styles.progressFill, 
+                      styles.progressFill,
                       { width: `${instrument.percentage}%` }
-                    ]} 
+                    ]}
                   />
                 </View>
                 <Text style={styles.instrumentDetails}>
-                  {instrument.total_minutes} min • {instrument.session_count} sessions
+                  {instrument.total_minutes} min • {instrument.session_count} sessions • Avg: {Math.round(instrument.avg_duration)}m
                 </Text>
               </View>
             ))}
           </View>
         )}
-
         {/* Empty State */}
         {totalTime && totalTime.sessionCount === 0 && (
           <View style={styles.emptyContainer}>
@@ -477,5 +521,61 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cardBadge: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6200ee',
+    backgroundColor: '#f3e5f5',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  cardStats: {
+    flexDirection: 'row',
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  cardStat: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  cardStatValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#6200ee',
+    marginBottom: 4,
+  },
+  cardStatLabel: {
+    fontSize: 12,
+    color: '#999',
+    textTransform: 'uppercase',
+  },
+  cardStatDivider: {
+    width: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  cardNote: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 10,
+    fontStyle: 'italic',
+  },
+  instrumentLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  instrumentEmoji: {
+    fontSize: 24,
+    marginRight: 10,
   },
 });
