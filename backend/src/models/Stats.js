@@ -6,8 +6,9 @@ class Stats {
     static async getTotalPracticeTime(userId, startDate = null, endDate = null) {
         let query = `
             SELECT 
-                COALESCE(SUM(total_duration), 0) as total_minutes,
-                COUNT(*) as session_count
+                COALESCE(SUM(COALESCE(actual_duration, total_duration)), 0) as total_minutes,
+                COUNT(*) as session_count,
+                COALESCE(AVG(COALESCE(actual_duration, total_duration)), 0) as avg_session_duration
             FROM practice_sessions
             WHERE user_id = $1
         `;
@@ -31,7 +32,6 @@ class Stats {
         } catch (error) {
             throw error;
         }
-
     }
 
     // Get current practice streak (consecutive days)
@@ -41,6 +41,7 @@ class Stats {
             SELECT DISTINCT practice_date
             FROM practice_sessions
             WHERE user_id = $1
+                AND COALESCE(actual_duration, total_duration) > 0
             ORDER BY practice_date DESC
         ),
         streak_check AS (
@@ -64,7 +65,6 @@ class Stats {
         } catch (error) {
             throw error;
         }
-
     }
 
     // Get consistency score (percentage of days practiced in timeframe)
@@ -78,6 +78,7 @@ class Stats {
             FROM practice_sessions
             WHERE user_id = $1
                 AND practice_date >= (SELECT start_date FROM date_range)
+                AND COALESCE(actual_duration, total_duration) > 0
         )
         SELECT
             days_practiced,
@@ -101,14 +102,15 @@ class Stats {
                 si.item_name,
                 si.item_type,
                 COUNT(*) as practice_count,
-                AVG(si.tempo_bpm)::int as avg_tempo
+                AVG(si.tempo_bpm)::int as avg_tempo,
+                SUM(si.time_spent_minutes) as total_time
             FROM session_items si
             JOIN practice_sessions ps ON si.session_id = ps.id
             WHERE ps.user_id = $1
                 AND si.item_name IS NOT NULL
-                GROUP BY si.item_name, si.item_type
-                ORDER BY practice_count DESC
-                LIMIT $2
+            GROUP BY si.item_name, si.item_type
+            ORDER BY practice_count DESC, total_time DESC
+            LIMIT $2
         `;
 
         try {
@@ -125,7 +127,8 @@ class Stats {
             SELECT
                 ps.practice_date,
                 si.tempo_bpm,
-                si.difficulty_level
+                si.difficulty_level,
+                si.time_spent_minutes
             FROM session_items si
             JOIN practice_sessions ps ON si.session_id = ps.id
             WHERE ps.user_id = $1
@@ -148,8 +151,8 @@ class Stats {
             SELECT
                 DATE_TRUNC('week', practice_date) as week_start,
                 COUNT(*) as session_count,
-                ROUND(AVG(total_duration)::numeric, 1) as avg_duration,
-                SUM(total_duration) as total_minutes
+                ROUND(AVG(COALESCE(actual_duration, total_duration))::numeric, 1) as avg_duration,
+                SUM(COALESCE(actual_duration, total_duration)) as total_minutes
             FROM practice_sessions
             WHERE user_id = $1
                 AND practice_date >= CURRENT_DATE - ($2 * 7)
@@ -169,14 +172,13 @@ class Stats {
     static async getInstrumentBreakdown(userId) {
         const query = `
             SELECT
-                instrument,
+                LOWER(COALESCE(instrument, 'not specified')) as instrument,
                 COUNT(*) as session_count,
-                SUM(total_duration) as total_minutes,
-                ROUND(AVG(total_duration)::numeric, 1) as avg_duration
+                SUM(COALESCE(actual_duration, total_duration)) as total_minutes,
+                ROUND(AVG(COALESCE(actual_duration, total_duration))::numeric, 1) as avg_duration
             FROM practice_sessions
             WHERE user_id = $1
-                AND instrument IS NOT NULL
-            GROUP BY instrument
+            GROUP BY LOWER(COALESCE(instrument, 'not specified'))
             ORDER BY total_minutes DESC
         `;
 
@@ -186,7 +188,6 @@ class Stats {
         } catch (error) {
             throw error;
         }
-
     }
 
 }
