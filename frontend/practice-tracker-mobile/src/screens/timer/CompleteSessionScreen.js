@@ -8,6 +8,7 @@ import {
     ActivityIndicator,
     Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TimerContext } from '../../context/TimerContext';
 import { SessionApi } from '../../services/SessionApi';
 
@@ -50,8 +51,6 @@ export default function CompleteSessionScreen({ navigation }) {
             // Create all laps as session items
             if (laps.length > 0) {
                 for (const lap of laps) {
-
-                    // Ensure lap duration is at least 1
                     const lapDuration = Math.max(1, lap.time_spent_minutes);
 
                     await SessionApi.createSessionItem(createdSession.session.id, {
@@ -128,38 +127,72 @@ export default function CompleteSessionScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <ScrollView style={styles.scrollView}>
-                {/* Header */}
-                <View style={[styles.header, { backgroundColor: isComplete ? '#4caf50' : '#ff9800' }]}>
-                    <Text style={styles.emoji}>
-                        {totalMinutes >= (sessionData?.total_duration || 0) ? '🎉' : '⏸️'}
-                    </Text>
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                {/* Header with Gradient */}
+                <LinearGradient
+                    colors={
+                        isComplete
+                            ? ['#10b981', '#059669', '#047857']
+                            : ['#f59e0b', '#d97706', '#b45309']
+                    }
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.header}
+                >
+                    <View style={styles.headerIconContainer}>
+                        <View style={styles.headerIconCircle}>
+                            <Text style={styles.headerIcon}>
+                                {isComplete ? '🎉' : '⏸️'}
+                            </Text>
+                        </View>
+                    </View>
                     <Text style={styles.title}>
-                        {totalMinutes >= (sessionData?.total_duration || 0)
-                            ? 'Practice Complete!'
-                            : 'Session Ended Early'}
+                        {isComplete ? 'Practice Complete!' : 'Session Ended Early'}
                     </Text>
                     <Text style={styles.subtitle}>
-                        {totalMinutes >= (sessionData?.total_duration || 0)
-                            ? 'Great work on your session'
-                            : 'Your progress has been saved'}
+                        {isComplete ? 'Great work on your session' : 'Your progress has been saved'}
                     </Text>
-                </View>
+                </LinearGradient>
+
                 {/* Summary Cards */}
                 <View style={styles.summaryContainer}>
                     <View style={styles.summaryCard}>
-                        <Text style={styles.summaryLabel}>Total Time</Text>
-                        <Text style={styles.summaryValue}>{totalMinutes} min</Text>
+                        <LinearGradient
+                            colors={['#ffffff', '#fafafa']}
+                            style={styles.summaryCardGradient}
+                        >
+                            <View style={styles.summaryIconContainer}>
+                                <Text style={styles.summaryIcon}>⏱️</Text>
+                            </View>
+                            <Text style={styles.summaryValue}>{totalMinutes}</Text>
+                            <Text style={styles.summaryLabel}>minutes</Text>
+                        </LinearGradient>
                     </View>
 
                     <View style={styles.summaryCard}>
-                        <Text style={styles.summaryLabel}>Laps</Text>
-                        <Text style={styles.summaryValue}>{laps.length}</Text>
+                        <LinearGradient
+                            colors={['#ffffff', '#fafafa']}
+                            style={styles.summaryCardGradient}
+                        >
+                            <View style={styles.summaryIconContainer}>
+                                <Text style={styles.summaryIcon}>🎯</Text>
+                            </View>
+                            <Text style={styles.summaryValue}>{laps.length}</Text>
+                            <Text style={styles.summaryLabel}>laps</Text>
+                        </LinearGradient>
                     </View>
 
                     <View style={styles.summaryCard}>
-                        <Text style={styles.summaryLabel}>Instrument</Text>
-                        <Text style={styles.summaryValue}>{sessionData?.instrument}</Text>
+                        <LinearGradient
+                            colors={['#ffffff', '#fafafa']}
+                            style={styles.summaryCardGradient}
+                        >
+                            <View style={styles.summaryIconContainer}>
+                                <Text style={styles.summaryIcon}>🎵</Text>
+                            </View>
+                            <Text style={styles.summaryValue}>{sessionData?.instrument}</Text>
+                            <Text style={styles.summaryLabel}>instrument</Text>
+                        </LinearGradient>
                     </View>
                 </View>
 
@@ -169,25 +202,36 @@ export default function CompleteSessionScreen({ navigation }) {
                         <Text style={styles.sectionTitle}>Practice Breakdown</Text>
                         {laps.map((lap, index) => (
                             <View key={index} style={styles.lapCard}>
-                                <View style={styles.lapHeader}>
-                                    <Text style={styles.lapNumber}>Lap {lap.lap_number}</Text>
-                                    <Text style={styles.lapDuration}>{lap.time_spent_minutes}m</Text>
-                                </View>
-                                <Text style={styles.lapName}>{lap.item_name}</Text>
-                                <View style={styles.lapDetails}>
-                                    <Text style={styles.lapType}>{lap.item_type}</Text>
-                                    {lap.tempo_bpm && (
-                                        <>
-                                            <Text style={styles.lapDot}>•</Text>
-                                            <Text style={styles.lapTempo}>{lap.tempo_bpm} BPM</Text>
-                                        </>
+                                <LinearGradient
+                                    colors={['#ffffff', '#fafafa']}
+                                    style={styles.lapGradient}
+                                >
+                                    <View style={styles.lapHeader}>
+                                        <View style={styles.lapNumberBadge}>
+                                            <Text style={styles.lapNumber}>Lap {lap.lap_number}</Text>
+                                        </View>
+                                        <Text style={styles.lapDuration}>{lap.time_spent_minutes}m</Text>
+                                    </View>
+                                    <Text style={styles.lapName}>{lap.item_name}</Text>
+                                    <View style={styles.lapDetails}>
+                                        <View style={styles.lapTag}>
+                                            <Text style={styles.lapType}>{lap.item_type}</Text>
+                                        </View>
+                                        {lap.tempo_bpm && (
+                                            <View style={styles.lapTag}>
+                                                <Text style={styles.lapDetail}>{lap.tempo_bpm} BPM</Text>
+                                            </View>
+                                        )}
+                                        <View style={styles.lapTag}>
+                                            <Text style={styles.lapDetail}>{lap.difficulty_level}</Text>
+                                        </View>
+                                    </View>
+                                    {lap.notes && (
+                                        <View style={styles.lapNotesContainer}>
+                                            <Text style={styles.lapNotes}>{lap.notes}</Text>
+                                        </View>
                                     )}
-                                    <Text style={styles.lapDot}>•</Text>
-                                    <Text style={styles.lapDifficulty}>{lap.difficulty_level}</Text>
-                                </View>
-                                {lap.notes && (
-                                    <Text style={styles.lapNotes}>{lap.notes}</Text>
-                                )}
+                                </LinearGradient>
                             </View>
                         ))}
                     </View>
@@ -197,23 +241,39 @@ export default function CompleteSessionScreen({ navigation }) {
                 {sessionData?.session_notes && (
                     <View style={styles.notesSection}>
                         <Text style={styles.sectionTitle}>Session Notes</Text>
-                        <Text style={styles.notesText}>{sessionData.session_notes}</Text>
+                        <View style={styles.notesCard}>
+                            <Text style={styles.notesText}>{sessionData.session_notes}</Text>
+                        </View>
                     </View>
                 )}
+
+                {/* Bottom spacing */}
+                <View style={{ height: 160 }} />
             </ScrollView>
 
-            {/* Actions */}
+            {/* Actions - Fixed at bottom */}
             <View style={styles.actions}>
                 <TouchableOpacity
                     style={styles.saveButton}
                     onPress={handleSaveSession}
                     disabled={isSaving}
+                    activeOpacity={0.8}
                 >
-                    {isSaving ? (
-                        <ActivityIndicator color="white" />
-                    ) : (
-                        <Text style={styles.saveButtonText}>💾 Save Session</Text>
-                    )}
+                    <LinearGradient
+                        colors={isSaving ? ['#94a3b8', '#94a3b8'] : ['#10b981', '#059669']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.saveButtonGradient}
+                    >
+                        {isSaving ? (
+                            <ActivityIndicator color="white" />
+                        ) : (
+                            <>
+                                <Text style={styles.saveButtonIcon}>💾</Text>
+                                <Text style={styles.saveButtonText}>Save Session</Text>
+                            </>
+                        )}
+                    </LinearGradient>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -231,162 +291,258 @@ export default function CompleteSessionScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f8fafb',
     },
     scrollView: {
         flex: 1,
     },
+    // Header
     header: {
-        backgroundColor: '#4caf50',
-        padding: 30,
-        paddingTop: 60,
+        paddingTop: 80,
+        paddingBottom: 60,
+        paddingHorizontal: 24,
         alignItems: 'center',
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
     },
-    emoji: {
-        fontSize: 60,
-        marginBottom: 10,
+    headerIconContainer: {
+        marginBottom: 20,
+    },
+    headerIconCircle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    headerIcon: {
+        fontSize: 50,
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
+        fontWeight: '900',
         color: 'white',
-        marginBottom: 5,
+        marginBottom: 8,
+        letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 16,
-        color: 'white',
-        opacity: 0.9,
+        fontSize: 15,
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontWeight: '500',
     },
+    // Summary Cards
     summaryContainer: {
         flexDirection: 'row',
-        padding: 15,
-        gap: 10,
+        paddingHorizontal: 20,
+        marginTop: -40,
+        gap: 12,
+        marginBottom: 20,
     },
     summaryCard: {
         flex: 1,
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 12,
-        alignItems: 'center',
+        borderRadius: 20,
+        overflow: 'hidden',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
-    summaryLabel: {
-        fontSize: 12,
-        color: '#999',
-        marginBottom: 5,
+    summaryCardGradient: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    summaryIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#f0f9ff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    summaryIcon: {
+        fontSize: 24,
     },
     summaryValue: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#4caf50',
+        fontSize: 24,
+        fontWeight: '900',
+        color: '#6366f1',
+        marginBottom: 4,
+        letterSpacing: -0.5,
     },
+    summaryLabel: {
+        fontSize: 11,
+        color: '#94a3b8',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    // Laps Section
     lapsSection: {
-        padding: 15,
+        paddingHorizontal: 20,
+        marginBottom: 20,
     },
     sectionTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 15,
+        fontWeight: '800',
+        color: '#1e293b',
+        marginBottom: 16,
+        letterSpacing: -0.3,
     },
     lapCard: {
-        backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 10,
+        marginBottom: 12,
+        borderRadius: 16,
+        overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
         elevation: 3,
+    },
+    lapGradient: {
+        padding: 18,
+        borderLeftWidth: 4,
+        borderLeftColor: '#6366f1',
     },
     lapHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 10,
+    },
+    lapNumberBadge: {
+        backgroundColor: '#f0f9ff',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
     },
     lapNumber: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: '#4caf50',
+        fontWeight: '800',
+        color: '#6366f1',
     },
     lapDuration: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 15,
+        color: '#64748b',
+        fontWeight: '700',
     },
     lapName: {
         fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
+        fontWeight: '800',
+        color: '#1e293b',
+        marginBottom: 10,
+        letterSpacing: -0.3,
     },
     lapDetails: {
         flexDirection: 'row',
-        alignItems: 'center',
+        flexWrap: 'wrap',
         gap: 8,
+    },
+    lapTag: {
+        backgroundColor: '#f1f5f9',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
     },
     lapType: {
         fontSize: 12,
-        color: '#666',
+        color: '#475569',
         textTransform: 'capitalize',
+        fontWeight: '700',
     },
-    lapDot: {
+    lapDetail: {
         fontSize: 12,
-        color: '#ccc',
+        color: '#64748b',
+        fontWeight: '600',
     },
-    lapTempo: {
-        fontSize: 12,
-        color: '#666',
-    },
-    lapDifficulty: {
-        fontSize: 12,
-        color: '#666',
-        textTransform: 'capitalize',
+    lapNotesContainer: {
+        marginTop: 12,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#e2e8f0',
     },
     lapNotes: {
         fontSize: 14,
-        color: '#666',
-        marginTop: 8,
+        color: '#64748b',
         fontStyle: 'italic',
+        lineHeight: 20,
     },
+    // Notes Section
     notesSection: {
-        padding: 15,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+    },
+    notesCard: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 3,
     },
     notesText: {
-        fontSize: 16,
-        color: '#666',
-        backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 12,
+        fontSize: 15,
+        color: '#64748b',
+        lineHeight: 22,
+        fontWeight: '500',
     },
+    // Actions
     actions: {
-        padding: 20,
-        gap: 12,
+        backgroundColor: 'white',
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 24,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 10,
     },
     saveButton: {
-        backgroundColor: '#4caf50',
-        padding: 18,
-        borderRadius: 12,
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#10b981',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
+        elevation: 8,
+        marginBottom: 12,
+    },
+    saveButtonGradient: {
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 24,
+        gap: 10,
+    },
+    saveButtonIcon: {
+        fontSize: 24,
     },
     saveButtonText: {
         color: 'white',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '800',
+        letterSpacing: 0.3,
     },
     discardButton: {
-        padding: 15,
+        padding: 16,
         alignItems: 'center',
     },
     discardButtonText: {
-        color: '#f44336',
+        color: '#ef4444',
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
     },
-    
 });

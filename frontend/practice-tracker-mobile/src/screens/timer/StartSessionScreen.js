@@ -10,6 +10,7 @@ import {
     Platform,
     Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { TimerContext } from '../../context/TimerContext';
 
@@ -21,7 +22,7 @@ export default function StartSessionScreen({ navigation }) {
     const [notes, setNotes] = useState('');
 
     // Quick duration buttons
-    const quickDurations = [30, 45, 60, 90, 120];
+    const quickDurations = [30, 45, 60, 90];
 
     // Check for active session when screen comes into focus
     useFocusEffect(() => {
@@ -54,18 +55,32 @@ export default function StartSessionScreen({ navigation }) {
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            <ScrollView style={styles.scrollView}>
-                <View style={styles.content}>
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <Text style={styles.headerEmoji}>⏱️</Text>
-                        <Text style={styles.title}>Start Practice Session</Text>
-                        <Text style={styles.subtitle}>Set your practice goal and begin!</Text>
+            <ScrollView 
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Header with Gradient */}
+                <LinearGradient
+                    colors={['#6366f1', '#8b5cf6', '#a855f7']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.headerGradient}
+                >
+                    <View style={styles.headerIconContainer}>
+                        <View style={styles.headerIconCircle}>
+                            <Text style={styles.headerIcon}>⏱️</Text>
+                        </View>
                     </View>
+                    <Text style={styles.title}>Start Practice Session</Text>
+                    <Text style={styles.subtitle}>Set your practice goal and begin!</Text>
+                </LinearGradient>
 
-                    {/* Duration */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Duration (minutes) *</Text>
+                {/* Form Container */}
+                <View style={styles.formContainer}>
+                    {/* Duration Section */}
+                    <View style={styles.card}>
+                        <Text style={styles.sectionTitle}>Duration (minutes) *</Text>
 
                         {/* Quick buttons */}
                         <View style={styles.quickButtons}>
@@ -77,60 +92,93 @@ export default function StartSessionScreen({ navigation }) {
                                         duration === String(mins) && styles.quickButtonActive,
                                     ]}
                                     onPress={() => setDuration(String(mins))}
+                                    activeOpacity={0.7}
                                 >
-                                    <Text
-                                        style={[
-                                            styles.quickButtonText,
-                                            duration === String(mins) && styles.quickButtonTextActive,
-                                        ]}
+                                    <LinearGradient
+                                        colors={
+                                            duration === String(mins)
+                                                ? ['#6366f1', '#8b5cf6']
+                                                : ['#ffffff', '#ffffff']
+                                        }
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={styles.quickButtonGradient}
                                     >
-                                        {mins}
-                                    </Text>
+                                        <Text
+                                            style={[
+                                                styles.quickButtonText,
+                                                duration === String(mins) && styles.quickButtonTextActive,
+                                            ]}
+                                        >
+                                            {mins}
+                                        </Text>
+                                    </LinearGradient>
                                 </TouchableOpacity>
                             ))}
                         </View>
 
                         {/* Custom input */}
-                        <TextInput
-                            style={styles.input}
-                            value={duration}
-                            onChangeText={setDuration}
-                            placeholder="Enter custom duration"
-                            keyboardType="numeric"
-                        />
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputIcon}>⏲️</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={duration}
+                                onChangeText={setDuration}
+                                placeholder="Enter custom duration"
+                                placeholderTextColor="#94a3b8"
+                                keyboardType="numeric"
+                            />
+                        </View>
                     </View>
 
-                    {/* Instrument */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Instrument *</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={instrument}
-                            onChangeText={setInstrument}
-                            placeholder="e.g., Piano, Guitar, Drums"
-                        />
+                    {/* Instrument Section */}
+                    <View style={styles.card}>
+                        <Text style={styles.sectionTitle}>Instrument *</Text>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputIcon}>🎵</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={instrument}
+                                onChangeText={setInstrument}
+                                placeholder="e.g., Piano, Guitar, Drums"
+                                placeholderTextColor="#94a3b8"
+                            />
+                        </View>
                     </View>
 
-                    {/* Notes (optional) */}
-                    <View style={styles.section}>
-                        <Text style={styles.label}>Session Notes (optional)</Text>
-                        <TextInput
-                            style={[styles.input, styles.textArea]}
-                            value={notes}
-                            onChangeText={setNotes}
-                            placeholder="What do you plan to practice?"
-                            multiline
-                            numberOfLines={3}
-                            textAlignVertical="top"
-                        />
+                    {/* Notes Section */}
+                    <View style={styles.card}>
+                        <Text style={styles.sectionTitle}>Session Notes (optional)</Text>
+                        <View style={[styles.inputContainer, styles.textAreaContainer]}>
+                            <Text style={[styles.inputIcon, styles.textAreaIcon]}>📝</Text>
+                            <TextInput
+                                style={[styles.input, styles.textArea]}
+                                value={notes}
+                                onChangeText={setNotes}
+                                placeholder="What do you plan to practice?"
+                                placeholderTextColor="#94a3b8"
+                                multiline
+                                numberOfLines={3}
+                                textAlignVertical="top"
+                            />
+                        </View>
                     </View>
 
                     {/* Start Button */}
                     <TouchableOpacity
                         style={styles.startButton}
                         onPress={handleStartSession}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.startButtonText}>🎵 Start Practice</Text>
+                        <LinearGradient
+                            colors={['#6366f1', '#8b5cf6']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.startButtonGradient}
+                        >
+                            <Text style={styles.startButtonIcon}>🎵</Text>
+                            <Text style={styles.startButtonText}>Start Practice</Text>
+                        </LinearGradient>
                     </TouchableOpacity>
 
                     {/* Cancel */}
@@ -141,6 +189,9 @@ export default function StartSessionScreen({ navigation }) {
                         <Text style={styles.cancelButtonText}>Cancel</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Bottom spacing */}
+                <View style={{ height: 40 }} />
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -149,107 +200,185 @@ export default function StartSessionScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f8fafb',
     },
     scrollView: {
         flex: 1,
     },
-    content: {
-        padding: 20,
-    },
-    header: {
+    // Header
+    headerGradient: {
+        paddingTop: 80,
+        paddingBottom: 60,
+        paddingHorizontal: 24,
         alignItems: 'center',
-        marginBottom: 30,
-        marginTop: 20,
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
     },
-    headerEmoji: {
-        fontSize: 60,
-        marginBottom: 10,
+    headerIconContainer: {
+        marginBottom: 20,
+    },
+    headerIconCircle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#6366f1',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    headerIcon: {
+        fontSize: 50,
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
+        fontWeight: '900',
+        color: 'white',
+        marginBottom: 8,
+        letterSpacing: -0.5,
+        textAlign: 'center',
     },
     subtitle: {
+        fontSize: 15,
+        color: 'rgba(255, 255, 255, 0.9)',
+        fontWeight: '500',
+    },
+    // Form Container
+    formContainer: {
+        paddingHorizontal: 20,
+        marginTop: -40,
+    },
+    card: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
+    },
+    sectionTitle: {
         fontSize: 16,
-        color: '#666',
+        fontWeight: '800',
+        color: '#1e293b',
+        marginBottom: 16,
+        letterSpacing: -0.3,
     },
-    section: {
-        marginBottom: 25,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 10,
-    },
+    // Quick Duration Buttons
     quickButtons: {
         flexDirection: 'row',
         gap: 10,
-        marginBottom: 15,
+        marginBottom: 16,
         flexWrap: 'wrap',
     },
     quickButton: {
         flex: 1,
         minWidth: 60,
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        backgroundColor: 'white',
-        borderWidth: 2,
-        borderColor: '#e0e0e0',
+        borderRadius: 12,
+        overflow: 'hidden',
+        shadowColor: '#6366f1',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    quickButtonGradient: {
+        paddingVertical: 14,
+        paddingHorizontal: 16,
         alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#e2e8f0',
+        borderRadius: 12,
     },
     quickButtonActive: {
-        backgroundColor: '#6200ee',
-        borderColor: '#6200ee',
+        shadowColor: '#6366f1',
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
     },
     quickButtonText: {
         fontSize: 16,
-        fontWeight: '600',
-        color: '#666',
+        fontWeight: '800',
+        color: '#64748b',
     },
     quickButtonTextActive: {
         color: 'white',
     },
+    // Input Container
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        borderWidth: 2,
+        borderColor: '#e2e8f0',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        height: 56,
+    },
+    textAreaContainer: {
+        height: 100,
+        alignItems: 'flex-start',
+        paddingVertical: 16,
+    },
+    inputIcon: {
+        fontSize: 20,
+        marginRight: 12,
+    },
+    textAreaIcon: {
+        marginTop: -2,
+    },
     input: {
-        backgroundColor: 'white',
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 15,
+        flex: 1,
         fontSize: 16,
+        color: '#1e293b',
+        fontWeight: '500',
     },
     textArea: {
-        height: 80,
-        paddingTop: 15,
+        height: '100%',
+        textAlignVertical: 'top',
     },
+    // Start Button
     startButton: {
-        backgroundColor: '#6200ee',
-        padding: 20,
-        borderRadius: 12,
-        alignItems: 'center',
-        marginTop: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#6366f1',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
         elevation: 8,
+        marginTop: 8,
+    },
+    startButtonGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 24,
+        gap: 10,
+    },
+    startButtonIcon: {
+        fontSize: 24,
     },
     startButtonText: {
         color: 'white',
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: 0.3,
     },
+    // Cancel Button
     cancelButton: {
-        padding: 15,
+        padding: 16,
         alignItems: 'center',
-        marginTop: 10,
+        marginTop: 12,
     },
     cancelButtonText: {
-        color: '#666',
+        color: '#64748b',
         fontSize: 16,
+        fontWeight: '600',
     },
 });
