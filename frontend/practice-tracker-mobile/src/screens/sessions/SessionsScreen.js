@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ScrollView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
   Alert
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import SessionCard from '../../components/SessionCard';
 import { SessionApi } from '../../services/SessionApi';
 
@@ -86,13 +87,19 @@ export default function SessionsScreen({ navigation }) {
   if (isLoading && sessions.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Text style={styles.title}>Practice Sessions</Text>
+        <LinearGradient
+          colors={['#6366f1', '#8b5cf6', '#a855f7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Sessions</Text>
+            <Text style={styles.subtitle}>Your practice history</Text>
           </View>
-        </View>
+        </LinearGradient>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6200ee" />
+          <ActivityIndicator size="large" color="#6366f1" />
           <Text style={styles.loadingText}>Loading sessions...</Text>
         </View>
       </View>
@@ -101,43 +108,14 @@ export default function SessionsScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Header with Stats */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.title}>Sessions</Text>
-          <Text style={styles.headerSubtitle}>Your practice history</Text>
-        </View>
-        
-        {sessions.length > 0 && (
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{sessions.length}</Text>
-              <Text style={styles.statLabel}>Total</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{getTodayCount()}</Text>
-              <Text style={styles.statLabel}>Today</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{getWeekCount()}</Text>
-              <Text style={styles.statLabel}>This Week</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{Math.round(getTotalMinutes() / 60)}h</Text>
-              <Text style={styles.statLabel}>Total Time</Text>
-            </View>
-          </View>
-        )}
-      </View>
 
       {/* Sessions List */}
       {sessions.length === 0 ? (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyContent}>
-            <Text style={styles.emptyIcon}>⏱️</Text>
+            <View style={styles.emptyIconContainer}>
+              <Text style={styles.emptyIcon}>⏱️</Text>
+            </View>
             <Text style={styles.emptyTitle}>No Sessions Yet</Text>
             <Text style={styles.emptyText}>
               Start tracking your practice journey!
@@ -148,18 +126,56 @@ export default function SessionsScreen({ navigation }) {
           </View>
         </View>
       ) : (
-        <ScrollView 
+        <ScrollView
           style={styles.sessionsList}
           contentContainerStyle={styles.sessionsListContent}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={onRefresh}
-              colors={['#6200ee']}
-              tintColor="#6200ee"
+              colors={['#6366f1']}
+              tintColor="#6366f1"
             />
           }
         >
+
+          {/* Header with Gradient */}
+          <LinearGradient
+            colors={['#6366f1', '#8b5cf6', '#a855f7']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.header}
+          >
+            <View style={styles.headerContent}>
+              <Text style={styles.title}>Sessions</Text>
+              <Text style={styles.subtitle}>Your practice history</Text>
+            </View>
+
+            {sessions.length > 0 && (
+              <View style={styles.statsCard}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{sessions.length}</Text>
+                  <Text style={styles.statLabel}>Total</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{getTodayCount()}</Text>
+                  <Text style={styles.statLabel}>Today</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{getWeekCount()}</Text>
+                  <Text style={styles.statLabel}>This Week</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{Math.round(getTotalMinutes() / 60)}h</Text>
+                  <Text style={styles.statLabel}>Total</Text>
+                </View>
+              </View>
+            )}
+          </LinearGradient>
+
           {sessions.map((session) => (
             <SessionCard
               key={session.id}
@@ -177,15 +193,20 @@ export default function SessionsScreen({ navigation }) {
       )}
 
       {/* Floating Action Button (FAB) */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.fab}
         onPress={handleStartPractice}
         activeOpacity={0.8}
       >
-        <View style={styles.fabContent}>
+        <LinearGradient
+          colors={['#6366f1', '#8b5cf6']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.fabGradient}
+        >
           <Text style={styles.fabIcon}>⏱️</Text>
           <Text style={styles.fabText}>Start</Text>
-        </View>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -194,65 +215,75 @@ export default function SessionsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8fafb',
   },
   // Header
   header: {
-    backgroundColor: '#6200ee',
     paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    marginHorizontal: -20,
+    marginTop: -20,
   },
-  headerTop: {
-    marginBottom: 16,
+  headerContent: {
+    marginBottom: 20,
   },
   title: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontWeight: '800',
     color: 'white',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
-  headerSubtitle: {
+  subtitle: {
     fontSize: 15,
     color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '500',
   },
-  statsRow: {
+  statsCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    padding: 18,
     justifyContent: 'space-around',
+    backdropFilter: 'blur(10px)',
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statValue: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '800',
     color: 'white',
     marginBottom: 4,
+    letterSpacing: -0.5,
   },
   statLabel: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.75)',
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statDivider: {
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   // Loading
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 100,
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#64748b',
+    fontWeight: '500',
   },
   // Empty State
   emptyContainer: {
@@ -260,69 +291,87 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
+    marginTop: -40,
   },
   emptyContent: {
     alignItems: 'center',
-    maxWidth: 280,
+    maxWidth: 300,
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#f0f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   emptyIcon: {
-    fontSize: 72,
-    marginBottom: 20,
+    fontSize: 56,
   },
   emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 10,
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#64748b',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
+    fontWeight: '500',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#94a3b8',
     textAlign: 'center',
+    fontWeight: '500',
   },
   // Sessions List
   sessionsList: {
     flex: 1,
+    marginTop: -20,
   },
   sessionsListContent: {
-    padding: 16,
+    padding: 20,
   },
   // Floating Action Button (FAB)
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#6200ee',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#6200ee',
-    shadowOffset: { width: 0, height: 4 },
+    right: 24,
+    bottom: 24,
+    borderRadius: 28,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 16,
+    elevation: 10,
+    overflow: 'hidden',
   },
-  fabContent: {
+  fabGradient: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   fabIcon: {
-    fontSize: 28,
+    fontSize: 32,
     marginBottom: 2,
   },
   fabText: {
-    fontSize: 10,
+    fontSize: 11,
     color: 'white',
-    fontWeight: '700',
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 });

@@ -7,12 +7,16 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../context/AuthContext';
 import { StatsApi } from '../../services/StatsApi';
 import { CombinedApi } from '../../services/api';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
@@ -52,7 +56,6 @@ export default function HomeScreen({ navigation }) {
       setTodayMinutes(summaryData.todayMinutes);
       setTodaySessionCount(summaryData.todaySessionCount);
       setCurrentStreak(summaryData.currentStreak);
-      // setRecentSessions(summaryData.recentSessions);
       setWeekStats(weekData);
 
     } catch (error) {
@@ -70,10 +73,10 @@ export default function HomeScreen({ navigation }) {
     fetchDashboardData();
   };
 
-  // Navigate to timer (instead of static add session)
+  // Navigate to Sessions Screen
   const handleStartPractice = () => {
     navigation.navigate('SessionsTab', {
-      screen: 'StartPracticeTimer'  // Changed from 'AddSession'
+      screen: 'StartPracticeTimer'
     });
   };
 
@@ -82,23 +85,44 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('Stats');
   };
 
-  // Navigate to session detail
-  const handleSessionPress = (session) => {
-    navigation.navigate('SessionsTab', {
-      screen: 'SessionDetail',
-      params: { session }
-    });
+  // Navigate to sessions
+  const handleViewSessions = () => {
+    navigation.navigate('SessionsTab');
+  };
+
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  // Get motivational message
+  const getMotivationMessage = () => {
+    if (currentStreak > 0) {
+      return `Keep your ${currentStreak}-day streak alive! 🔥`;
+    }
+    if (todaySessionCount > 0) {
+      return `Great start today! Keep going! 💪`;
+    }
+    return "Ready to make today count? 🎵";
   };
 
   // Loading state
   if (isLoading && !weekStats) {
     return (
       <View style={styles.container}>
-        <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeText}>Welcome Back! 👋</Text>
-        </View>
+        <LinearGradient
+          colors={['#6366f1', '#8b5cf6', '#a855f7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <Text style={styles.greeting}>{getGreeting()} 👋</Text>
+        </LinearGradient>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6200ee" />
+          <ActivityIndicator size="large" color="#6366f1" />
           <Text style={styles.loadingText}>Loading your dashboard...</Text>
         </View>
       </View>
@@ -109,114 +133,196 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            colors={['#6200ee']}
+            colors={['#6366f1']}
+            tintColor="#6366f1"
           />
         }
       >
-        {/* Welcome Section */}
-        <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeText}>Welcome Back, {user?.username}! 👋</Text>
-          <Text style={styles.date}>
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </Text>
-        </View>
+        {/* Header with Gradient */}
+        <LinearGradient
+          colors={['#6366f1', '#8b5cf6', '#a855f7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.headerContent}>
+            <Text style={styles.greeting}>{getGreeting()} 👋</Text>
+            <Text style={styles.username}>{user?.username}</Text>
+            <Text style={styles.date}>
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Text>
+          </View>
+        </LinearGradient>
 
-        {/* Today's Practice Summary */}
-        <View style={styles.todaySection}>
-          <Text style={styles.sectionTitle}>Today's Practice</Text>
+        {/* Main Content */}
+        <View style={styles.content}>
+          
+          {/* Today's Overview - Hero Card */}
+          <View style={styles.heroSection}>
+            <LinearGradient
+              colors={['#ffffff', '#fafafa']}
+              style={styles.todayCard}
+            >
+              {/* Main Stats */}
+              <View style={styles.todayMain}>
+                <View style={styles.todayPrimary}>
+                  <View style={styles.bigNumberContainer}>
+                    <Text style={styles.todayBigNumber}>{todayMinutes}</Text>
+                    <View style={styles.minutesAccent} />
+                  </View>
+                  <Text style={styles.todayBigLabel}>minutes practiced today</Text>
+                </View>
+              </View>
 
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>{todayMinutes}</Text>
-              <Text style={styles.statLabel}>Minutes</Text>
-            </View>
+              {/* Secondary Stats */}
+              <View style={styles.statsRow}>
+                <View style={styles.statPill}>
+                  <View style={styles.statPillIcon}>
+                    <Text style={styles.statEmoji}>🎯</Text>
+                  </View>
+                  <View style={styles.statPillContent}>
+                    <Text style={styles.statPillNumber}>{todaySessionCount}</Text>
+                    <Text style={styles.statPillLabel}>Sessions</Text>
+                  </View>
+                </View>
 
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>{todaySessionCount}</Text>
-              <Text style={styles.statLabel}>Sessions</Text>
-            </View>
+                <View style={[styles.statPill, styles.streakPill]}>
+                  <View style={styles.statPillIcon}>
+                    <Text style={styles.statEmoji}>🔥</Text>
+                  </View>
+                  <View style={styles.statPillContent}>
+                    <Text style={styles.statPillNumber}>{currentStreak}</Text>
+                    <Text style={styles.statPillLabel}>Day Streak</Text>
+                  </View>
+                </View>
+              </View>
 
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>{currentStreak}</Text>
-              <Text style={styles.statLabel}>Day Streak</Text>
-            </View>
+              {/* Motivation Banner */}
+              <View style={styles.motivationBanner}>
+                <Text style={styles.motivationText}>{getMotivationMessage()}</Text>
+              </View>
+
+              {/* Primary CTA */}
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={handleStartPractice}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#6366f1', '#8b5cf6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.primaryButtonGradient}
+                >
+                  <Text style={styles.primaryButtonIcon}>⏱️</Text>
+                  <Text style={styles.primaryButtonText}>Start Practice Session</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
 
-          {todaySessionCount === 0 && (
-            <View style={styles.motivationBox}>
-              <Text style={styles.motivationText}>
-                {currentStreak > 0
-                  ? `🔥 Keep your ${currentStreak}-day streak alive!`
-                  : "🎵 Start your practice for today!"
-                }
-              </Text>
+          {/* This Week Stats */}
+          {weekStats && (
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View>
+                  <Text style={styles.sectionTitle}>This Week</Text>
+                  <Text style={styles.sectionSubtitle}>Your progress at a glance</Text>
+                </View>
+                <TouchableOpacity onPress={handleViewStats} style={styles.viewAllButton}>
+                  <Text style={styles.viewAllText}>View All</Text>
+                  <Text style={styles.viewAllArrow}>→</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.weekCard}>
+                <View style={styles.weekItem}>
+                  <View style={styles.weekIconContainer}>
+                    <Text style={styles.weekIcon}>⏰</Text>
+                  </View>
+                  <Text style={styles.weekValue}>
+                    {weekStats.hours}h {weekStats.minutes}m
+                  </Text>
+                  <Text style={styles.weekLabel}>Total Time</Text>
+                </View>
+                
+                <View style={styles.weekDivider} />
+                
+                <View style={styles.weekItem}>
+                  <View style={styles.weekIconContainer}>
+                    <Text style={styles.weekIcon}>📝</Text>
+                  </View>
+                  <Text style={styles.weekValue}>{weekStats.sessionCount}</Text>
+                  <Text style={styles.weekLabel}>Sessions</Text>
+                </View>
+                
+                <View style={styles.weekDivider} />
+                
+                <View style={styles.weekItem}>
+                  <View style={styles.weekIconContainer}>
+                    <Text style={styles.weekIcon}>📊</Text>
+                  </View>
+                  <Text style={styles.weekValue}>{weekStats.averageMinutes}m</Text>
+                  <Text style={styles.weekLabel}>Avg Length</Text>
+                </View>
+              </View>
             </View>
           )}
-        </View>
 
-        {/* This Week Summary */}
-        {weekStats && (
-          <View style={styles.weekSection}>
-            <Text style={styles.sectionTitle}>This Week</Text>
-            <View style={styles.weekCard}>
-              <View style={styles.weekStat}>
-                <Text style={styles.weekLabel}>Total Time</Text>
-                <Text style={styles.weekValue}>
-                  {weekStats.hours}h {weekStats.minutes}m
-                </Text>
-              </View>
-              <View style={styles.weekDivider} />
-              <View style={styles.weekStat}>
-                <Text style={styles.weekLabel}>Sessions</Text>
-                <Text style={styles.weekValue}>{weekStats.sessionCount}</Text>
-              </View>
-              <View style={styles.weekDivider} />
-              <View style={styles.weekStat}>
-                <Text style={styles.weekLabel}>Avg/Session</Text>
-                <Text style={styles.weekValue}>{weekStats.averageMinutes}m</Text>
-              </View>
+          {/* Quick Actions */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            
+            <View style={styles.actionsGrid}>
+              <TouchableOpacity
+                style={styles.actionCard}
+                onPress={handleViewSessions}
+                activeOpacity={0.7}
+              >
+                <LinearGradient
+                  colors={['#f0f9ff', '#e0f2fe']}
+                  style={styles.actionGradient}
+                >
+                  <View style={styles.actionIconContainer}>
+                    <Text style={styles.actionIcon}>📖</Text>
+                  </View>
+                  <Text style={styles.actionTitle}>View Sessions</Text>
+                  <Text style={styles.actionSubtitle}>Browse history</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionCard}
+                onPress={handleViewStats}
+                activeOpacity={0.7}
+              >
+                <LinearGradient
+                  colors={['#fef3c7', '#fde68a']}
+                  style={styles.actionGradient}
+                >
+                  <View style={styles.actionIconContainer}>
+                    <Text style={styles.actionIcon}>📈</Text>
+                  </View>
+                  <Text style={styles.actionTitle}>Statistics</Text>
+                  <Text style={styles.actionSubtitle}>Track progress</Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
           </View>
-        )}
 
-        {/* Quick Actions */}
-        <View style={styles.actionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleStartPractice}
-          >
-            <Text style={styles.actionIcon}>📝</Text>
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>Start Practice Session</Text>
-              <Text style={styles.actionSubtitle}>Log your practice now</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleViewStats}
-          >
-            <Text style={styles.actionIcon}>📊</Text>
-            <View style={styles.actionTextContainer}>
-              <Text style={styles.actionTitle}>View Statistics</Text>
-              <Text style={styles.actionSubtitle}>See your progress</Text>
-            </View>
-          </TouchableOpacity>
         </View>
 
         {/* Bottom spacing */}
-        <View style={{ height: 30 }} />
+        <View style={{ height: 60 }} />
       </ScrollView>
     </View>
   );
@@ -225,7 +331,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8fafb',
   },
   scrollView: {
     flex: 1,
@@ -234,203 +340,330 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 100,
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#64748b',
+    fontWeight: '500',
   },
-  welcomeSection: {
-    backgroundColor: '#6200ee',
-    padding: 25,
+  
+  // Header
+  headerGradient: {
     paddingTop: 60,
     paddingBottom: 40,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
-  welcomeText: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  headerContent: {
+    paddingBottom: 8,
+  },
+  greeting: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '600',
+    marginBottom: 6,
+    letterSpacing: 0.3,
+  },
+  username: {
+    fontSize: 36,
+    fontWeight: '800',
     color: 'white',
-    marginBottom: 5,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   date: {
-    fontSize: 16,
-    color: 'white',
-    opacity: 0.9,
-  },
-  // Today's Practice
-  todaySection: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 15,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statNumber: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#6200ee',
-    marginBottom: 5,
-  },
-  statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontWeight: '500',
   },
-  motivationBox: {
-    backgroundColor: '#fff3e0',
-    padding: 15,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#ff9800',
+  
+  // Content
+  content: {
+    paddingHorizontal: 20,
+    marginTop: -20,
   },
-  motivationText: {
+  
+  // Hero Section
+  heroSection: {
+    marginBottom: 32,
+  },
+  todayCard: {
+    backgroundColor: 'white',
+    borderRadius: 28,
+    padding: 28,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  todayMain: {
+    marginBottom: 24,
+  },
+  todayPrimary: {
+    alignItems: 'center',
+  },
+  bigNumberContainer: {
+    position: 'relative',
+    marginBottom: 8,
+  },
+  todayBigNumber: {
+    fontSize: 72,
+    fontWeight: '900',
+    color: '#6366f1',
+    lineHeight: 80,
+    letterSpacing: -2,
+  },
+  minutesAccent: {
+    position: 'absolute',
+    bottom: 8,
+    left: 0,
+    right: 0,
+    height: 6,
+    backgroundColor: '#e0e7ff',
+    borderRadius: 3,
+    opacity: 0.5,
+  },
+  todayBigLabel: {
     fontSize: 16,
-    color: '#e65100',
+    color: '#64748b',
     fontWeight: '600',
     textAlign: 'center',
   },
-  // This Week
-  weekSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+  
+  // Stats Row
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
   },
-  weekCard: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
+  statPill: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 16,
+    padding: 14,
+    gap: 10,
   },
-  weekStat: {
-    flex: 1,
+  streakPill: {
+    backgroundColor: '#fff7ed',
+  },
+  statPillIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  weekLabel: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 5,
-  },
-  weekValue: {
+  statEmoji: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#6200ee',
   },
-  weekDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#e0e0e0',
+  statPillContent: {
+    flex: 1,
   },
-  // Recent Sessions
-  recentSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+  statPillNumber: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1e293b',
+    lineHeight: 26,
+  },
+  statPillLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  
+  // Motivation Banner
+  motivationBanner: {
+    backgroundColor: '#f0f9ff',
+    borderLeftWidth: 4,
+    borderLeftColor: '#6366f1',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  motivationText: {
+    fontSize: 15,
+    color: '#1e40af',
+    fontWeight: '600',
+    lineHeight: 22,
+  },
+  
+  // Primary Button
+  primaryButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  primaryButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    gap: 10,
+  },
+  primaryButtonIcon: {
+    fontSize: 24,
+  },
+  primaryButtonText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: 0.3,
+  },
+  
+  // Section
+  section: {
+    marginBottom: 32,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-  seeAllText: {
-    fontSize: 14,
-    color: '#6200ee',
-    fontWeight: '600',
-  },
-  recentSessionCard: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sessionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  sessionInstrument: {
-    fontSize: 32,
-    marginRight: 15,
-  },
-  sessionDate: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1e293b',
     marginBottom: 2,
+    letterSpacing: -0.5,
   },
-  sessionNotes: {
-    fontSize: 12,
-    color: '#999',
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '500',
   },
-  sessionDuration: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#6200ee',
-  },
-  // Quick Actions
-  actionsSection: {
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-  },
-  actionButton: {
+  viewAllButton: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
     alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    gap: 4,
+  },
+  viewAllText: {
+    fontSize: 13,
+    color: '#6366f1',
+    fontWeight: '700',
+  },
+  viewAllArrow: {
+    fontSize: 14,
+    color: '#6366f1',
+    fontWeight: '700',
+  },
+  
+  // Week Card
+  weekCard: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  weekItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  weekIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f8fafc',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  weekIcon: {
+    fontSize: 20,
+  },
+  weekValue: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 4,
+  },
+  weekLabel: {
+    fontSize: 11,
+    color: '#94a3b8',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  weekDivider: {
+    width: 1,
+    height: 50,
+    backgroundColor: '#e2e8f0',
+  },
+  
+  // Quick Actions
+  actionsGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  actionCard: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  actionGradient: {
+    padding: 24,
+    alignItems: 'center',
+    minHeight: 160,
+    justifyContent: 'center',
+  },
+  actionIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 3,
   },
   actionIcon: {
-    fontSize: 40,
-    marginRight: 15,
-  },
-  actionTextContainer: {
-    flex: 1,
+    fontSize: 32,
   },
   actionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1e293b',
+    textAlign: 'center',
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   actionSubtitle: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

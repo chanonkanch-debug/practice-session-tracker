@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from '../../context/AuthContext'; // for logout
+import { AuthContext } from '../../context/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ProfileScreen() {
   const { user, logout } = useContext(AuthContext);
@@ -12,10 +13,10 @@ export default function ProfileScreen() {
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
+        {
+          text: 'Logout',
           style: 'destructive',
-          onPress: logout 
+          onPress: logout
         }
       ]
     );
@@ -23,77 +24,157 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header with user info */}
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user?.username?.charAt(0).toUpperCase() || 'U'}
-          </Text>
-        </View>
-        <Text style={styles.name}>{user?.username || 'User'}</Text>
-        <Text style={styles.email}>{user?.email || 'user@example.com'}</Text>
-      </View>
 
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+
+        {/* Header with Gradient */}
+        <LinearGradient
+          colors={['#6366f1', '#8b5cf6', '#a855f7']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.avatarContainer}>
+            <LinearGradient
+              colors={['#ffffff', '#f0f9ff']}
+              style={styles.avatar}
+            >
+              <Text style={styles.avatarText}>
+                {user?.username?.charAt(0).toUpperCase() || 'U'}
+              </Text>
+            </LinearGradient>
+            <View style={styles.avatarGlow} />
+          </View>
+          <Text style={styles.name}>{user?.username || 'User'}</Text>
+          <Text style={styles.email}>{user?.email || 'user@example.com'}</Text>
+        </LinearGradient>
+
         {/* Settings Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          
-          <TouchableOpacity 
-            style={styles.option}
-            onPress={() => alert('Edit Profile coming soon!')}
-          >
-            <Text style={styles.optionText}>Edit Profile</Text>
-            <Text style={styles.optionArrow}>›</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.option}
-            onPress={() => alert('Notifications coming soon!')}
-          >
-            <Text style={styles.optionText}>Notifications</Text>
-            <Text style={styles.optionArrow}>›</Text>
-          </TouchableOpacity>
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => alert('Edit Profile coming soon!')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.optionLeft}>
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>👤</Text>
+                </View>
+                <View>
+                  <Text style={styles.optionText}>Edit Profile</Text>
+                  <Text style={styles.optionSubtext}>Update your information</Text>
+                </View>
+              </View>
+              <Text style={styles.optionArrow}>›</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.option}
-            onPress={() => alert('Practice Goals coming soon!')}
-          >
-            <Text style={styles.optionText}>Practice Goals</Text>
-            <Text style={styles.optionArrow}>›</Text>
-          </TouchableOpacity>
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => alert('Notifications coming soon!')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.optionLeft}>
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>🔔</Text>
+                </View>
+                <View>
+                  <Text style={styles.optionText}>Notifications</Text>
+                  <Text style={styles.optionSubtext}>Manage your alerts</Text>
+                </View>
+              </View>
+              <Text style={styles.optionArrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => alert('Practice Goals coming soon!')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.optionLeft}>
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>🎯</Text>
+                </View>
+                <View>
+                  <Text style={styles.optionText}>Practice Goals</Text>
+                  <Text style={styles.optionSubtext}>Set your targets</Text>
+                </View>
+              </View>
+              <Text style={styles.optionArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* About Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
-          
-          <TouchableOpacity 
-            style={styles.option}
-            onPress={() => alert('Help coming soon!')}
-          >
-            <Text style={styles.optionText}>Help & Support</Text>
-            <Text style={styles.optionArrow}>›</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.option}
-            onPress={() => alert('Terms coming soon!')}
-          >
-            <Text style={styles.optionText}>Terms of Service</Text>
-            <Text style={styles.optionArrow}>›</Text>
-          </TouchableOpacity>
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => alert('Help coming soon!')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.optionLeft}>
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>❓</Text>
+                </View>
+                <View>
+                  <Text style={styles.optionText}>Help & Support</Text>
+                  <Text style={styles.optionSubtext}>Get assistance</Text>
+                </View>
+              </View>
+              <Text style={styles.optionArrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => alert('Terms coming soon!')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.optionLeft}>
+                <View style={styles.optionIconContainer}>
+                  <Text style={styles.optionIcon}>📄</Text>
+                </View>
+                <View>
+                  <Text style={styles.optionText}>Terms of Service</Text>
+                  <Text style={styles.optionSubtext}>Legal information</Text>
+                </View>
+              </View>
+              <Text style={styles.optionArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.logoutButton}
           onPress={handleLogout}
+          activeOpacity={0.8}
         >
-          <Text style={styles.logoutText}>Log Out</Text>
+          <LinearGradient
+            colors={['#ef4444', '#dc2626']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.logoutGradient}
+          >
+            <Text style={styles.logoutIcon}>🚪</Text>
+            <Text style={styles.logoutText}>Log Out</Text>
+          </LinearGradient>
         </TouchableOpacity>
 
         <Text style={styles.version}>Version 1.0.0</Text>
+
+        {/* Bottom spacing */}
+        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
@@ -102,93 +183,166 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8fafb',
   },
+  // Header
   header: {
-    backgroundColor: '#6200ee',
-    padding: 30,
     paddingTop: 60,
     paddingBottom: 40,
+    paddingHorizontal: 24,
     alignItems: 'center',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 20,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'white',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  avatarGlow: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    top: 0,
+    left: 0,
   },
   avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#6200ee',
+    fontSize: 42,
+    fontWeight: '900',
+    color: '#6366f1',
+    letterSpacing: -1,
   },
   name: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
     color: 'white',
-    marginBottom: 5,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   email: {
-    fontSize: 16,
-    color: 'white',
-    opacity: 0.9,
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '500',
   },
+  // Content
   scrollView: {
     flex: 1,
+    marginTop: -20,
   },
   section: {
-    marginTop: 20,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginHorizontal: 15,
-    overflow: 'hidden',
+    marginTop: 24,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    padding: 15,
-    paddingBottom: 10,
-    backgroundColor: '#f9f9f9',
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1e293b',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+    letterSpacing: -0.3,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   option: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+  },
+  optionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 14,
+  },
+  optionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f1f5f9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    fontSize: 24,
   },
   optionText: {
     fontSize: 16,
-    color: '#333',
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 2,
+    letterSpacing: -0.3,
+  },
+  optionSubtext: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '500',
   },
   optionArrow: {
-    fontSize: 24,
-    color: '#999',
+    fontSize: 28,
+    color: '#cbd5e1',
+    fontWeight: '300',
   },
+  optionDivider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    marginLeft: 80,
+  },
+  // Logout Button
   logoutButton: {
-    backgroundColor: 'white',
-    margin: 15,
-    marginTop: 30,
-    padding: 18,
-    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 32,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  logoutGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#d32f2f',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    gap: 10,
+  },
+  logoutIcon: {
+    fontSize: 22,
   },
   logoutText: {
-    color: '#d32f2f',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   version: {
     textAlign: 'center',
-    color: '#999',
-    fontSize: 14,
-    marginVertical: 20,
+    color: '#94a3b8',
+    fontSize: 13,
+    marginTop: 24,
+    fontWeight: '600',
   },
 });
