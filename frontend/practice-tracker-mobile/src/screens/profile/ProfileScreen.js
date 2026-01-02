@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation })  {
   const { user, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
@@ -56,7 +56,7 @@ export default function ProfileScreen() {
           <View style={styles.card}>
             <TouchableOpacity
               style={styles.option}
-              onPress={() => alert('Edit Profile coming soon!')}
+              onPress={() => navigation.navigate('EditProfile')}
               activeOpacity={0.7}
             >
               <View style={styles.optionLeft}>
@@ -75,7 +75,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity
               style={styles.option}
-              onPress={() => alert('Notifications coming soon!')}
+              onPress={() => navigation.navigate('Notifications')}
               activeOpacity={0.7}
             >
               <View style={styles.optionLeft}>
@@ -94,7 +94,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity
               style={styles.option}
-              onPress={() => alert('Practice Goals coming soon!')}
+              onPress={() => navigation.navigate('PracticeGoals')}
               activeOpacity={0.7}
             >
               <View style={styles.optionLeft}>

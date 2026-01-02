@@ -22,6 +22,11 @@ import ActiveTimerScreen from './src/screens/timer/ActiveTimerScreen';
 import AddLapScreen from './src/screens/timer/AddLapScreen';
 import CompleteSessionScreen from './src/screens/timer/CompleteSessionScreen';
 
+// Add profile screen stacks
+import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+import NotificationsScreen from './src/screens/profile/NotificationScreens';
+import PracticeGoalsScreen from './src/screens/profile/PracticeGoalsScreen';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +38,49 @@ function AuthStack() {
       <Stack.Screen name="Register" component={RegisterScreen} />
     </Stack.Navigator>
   );
+}
+
+// Profile Stack (edit/update)
+function ProfileStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="ProfileMain" 
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="EditProfile" 
+        component={EditProfileScreen}
+        options={{ 
+          title: 'Edit Profile',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen 
+        name="Notifications" 
+        component={NotificationsScreen}
+        options={{ 
+          title: 'Notifications',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen 
+        name="PracticeGoals" 
+        component={PracticeGoalsScreen}
+        options={{ 
+          title: 'Practice Goals',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      </Stack.Navigator>
+  )
 }
 
 // Create Timer Stack Navigator
@@ -223,7 +271,7 @@ function MainTabs() {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
