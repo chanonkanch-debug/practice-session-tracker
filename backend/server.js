@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/authRoutes'); // import auth routes
 const sessionRoutes = require('./src/routes/sessionRoutes'); // import session routes
 const statsRoutes = require('./src/routes/statsRoutes'); // import stats routes
+const userRoutes = require('./src/routes/userRoutes'); // import user routes
 
 // creates express application
 const app = express();
@@ -53,6 +54,9 @@ app.use('/api/sessions', sessionRoutes);
 
 // Stats routes
 app.use('/api/stats', statsRoutes);
+
+// User routes
+app.use('/api/user', userRoutes);
     
 // get port from .env variable, default is 3000
 const PORT = process.env.PORT || 3000;
