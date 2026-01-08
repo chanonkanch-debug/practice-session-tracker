@@ -7,13 +7,15 @@ const authRoutes = require('./src/routes/authRoutes'); // import auth routes
 const sessionRoutes = require('./src/routes/sessionRoutes'); // import session routes
 const statsRoutes = require('./src/routes/statsRoutes'); // import stats routes
 const userRoutes = require('./src/routes/userRoutes'); // import user routes
+const sheetAnalysis = require('./src/routes/SheetAnalysisRoutes'); // import sheet analysis routes
 
 // creates express application
 const app = express();
 
 // middleware
 app.use(cors()); // allow all origin
-app.use(express.json()); // parse incoming json data
+app.use(express.json({ limit: '50mb' })); // parse incoming json data, increase limit of base64 image
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // routes
 app.get('/', (req, res) => {
@@ -57,6 +59,9 @@ app.use('/api/stats', statsRoutes);
 
 // User routes
 app.use('/api/user', userRoutes);
+
+// Sheet Analysis routes
+app.use('/api/sheet-analysis', sheetAnalysis);
     
 // get port from .env variable, default is 3000
 const PORT = process.env.PORT || 3000;
