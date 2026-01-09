@@ -16,16 +16,20 @@ import AddEditSessionScreen from './src/screens/sessions/AddSessionScreen';
 import StatsScreen from './src/screens/stats/StatsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 
-// Add timer screen imports
+// Timer screens
 import StartSessionScreen from './src/screens/timer/StartSessionScreen';
 import ActiveTimerScreen from './src/screens/timer/ActiveTimerScreen';
 import AddLapScreen from './src/screens/timer/AddLapScreen';
 import CompleteSessionScreen from './src/screens/timer/CompleteSessionScreen';
 
-// Add profile screen stacks
+// Profile screens
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
 import NotificationsScreen from './src/screens/profile/NotificationScreens';
 import PracticeGoalsScreen from './src/screens/profile/PracticeGoalsScreen';
+
+// Sheet Analysis screens
+import AnalyzeSheetScreen from './src/screens/sheet/AnalyzeSheetScreen';
+import AnalysisResultScreen from './src/screens/sheet/AnalyzeResultScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -40,7 +44,7 @@ function AuthStack() {
   );
 }
 
-// Profile Stack (edit/update)
+// Profile Stack
 function ProfileStack() {
   return (
     <Stack.Navigator>
@@ -79,61 +83,11 @@ function ProfileStack() {
           headerTitleStyle: { fontWeight: 'bold' }
         }}
       />
-      </Stack.Navigator>
-  )
-}
-
-// Create Timer Stack Navigator
-function TimerStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="StartSession"
-        component={StartSessionScreen}
-        options={{
-          title: 'Start Practice',
-          headerStyle: { backgroundColor: '#6200ee' },
-          headerTintColor: 'white',
-          headerTitleStyle: { fontWeight: 'bold' }
-        }}
-      />
-      <Stack.Screen
-        name="ActiveTimer"
-        component={ActiveTimerScreen}
-        options={{
-          title: 'Practice Session',
-          headerStyle: { backgroundColor: '#6200ee' },
-          headerTintColor: 'white',
-          headerTitleStyle: { fontWeight: 'bold' },
-          headerLeft: () => null, // Prevent going back
-        }}
-      />
-      <Stack.Screen
-        name="AddLap"
-        component={AddLapScreen}
-        options={{
-          title: 'Add Lap',
-          headerStyle: { backgroundColor: '#6200ee' },
-          headerTintColor: 'white',
-          headerTitleStyle: { fontWeight: 'bold' }
-        }}
-      />
-      <Stack.Screen
-        name="CompleteSession"
-        component={CompleteSessionScreen}
-        options={{
-          title: 'Session Complete',
-          headerStyle: { backgroundColor: '#4caf50' },
-          headerTintColor: 'white',
-          headerTitleStyle: { fontWeight: 'bold' },
-          headerLeft: () => null, // Prevent going back
-        }}
-      />
     </Stack.Navigator>
   );
 }
 
-// Sessions Stack (List -> Detail -> Edit/Add)
+// Sessions Stack
 function SessionsStack() {
   return (
     <Stack.Navigator>
@@ -173,7 +127,7 @@ function SessionsStack() {
         }}
       />
 
-      {/* ADD TIMER SCREENS HERE */}
+      {/* Timer screens */}
       <Stack.Screen
         name="StartPracticeTimer"
         component={StartSessionScreen}
@@ -216,7 +170,35 @@ function SessionsStack() {
           headerLeft: () => null,
         }}
       />
+    </Stack.Navigator>
+  );
+}
 
+// Sheet Analysis Stack (NEW)
+function SheetAnalysisStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="AnalyzeSheet" 
+        component={AnalyzeSheetScreen}
+        options={{ 
+          title: 'Analyze Sheet Music',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' }
+        }}
+      />
+      <Stack.Screen 
+        name="AnalysisResult" 
+        component={AnalysisResultScreen}
+        options={{ 
+          title: 'Analysis Results',
+          headerStyle: { backgroundColor: '#6200ee' },
+          headerTintColor: 'white',
+          headerTitleStyle: { fontWeight: 'bold' },
+          headerLeft: () => null
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -258,6 +240,19 @@ function MainTabs() {
         }}
       />
 
+      {/* NEW: Sheet Analysis Tab */}
+      <Tab.Screen
+        name="SheetTab"
+        component={SheetAnalysisStack}
+        options={{
+          headerShown: false,
+          tabBarLabel: 'Analyze',
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24 }}>📸</Text>
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Stats"
         component={StatsScreen}
@@ -283,11 +278,10 @@ function MainTabs() {
   );
 }
 
-// App Navigator (decides between Auth or Main based on auth state)
+// App Navigator
 function AppNavigator() {
   const { isAuthenticated, isLoading } = useContext(AuthContext);
 
-  // Show loading screen while checking for stored token
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -296,7 +290,6 @@ function AppNavigator() {
     );
   }
 
-  // Show Auth screens if not authenticated, Main tabs if authenticated
   return (
     <NavigationContainer>
       {isAuthenticated ? <MainTabs /> : <AuthStack />}
@@ -304,7 +297,7 @@ function AppNavigator() {
   );
 }
 
-// Root App Component (wrapped with AuthProvider)
+// Root App Component
 export default function App() {
   return (
     <AuthProvider>
