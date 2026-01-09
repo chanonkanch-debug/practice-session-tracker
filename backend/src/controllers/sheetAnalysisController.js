@@ -1,6 +1,10 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const SheetAnalysis = require('../models/SheetAnalysis');
 
+// Initialize Anthropic client with debugging
+console.log('ANTHROPIC_API_KEY exists:', !!process.env.ANTHROPIC_API_KEY);
+console.log('ANTHROPIC_API_KEY starts with:', process.env.ANTHROPIC_API_KEY?.substring(0, 15));
+
 //initialize Anthropic client
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY
